@@ -934,10 +934,35 @@
 }
 
 .dayModalWorkoutName {
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   font-weight: 800;
   color: var(--text-main);
-  margin: 0 0 0.25rem 0;
+  margin: 0;
+}
+
+.shareBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.65rem;
+  background-color: rgba(255, 42, 117, 0.1);
+  color: var(--neon-pink);
+  border: 1px solid rgba(255, 42, 117, 0.2);
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.shareBtn:hover {
+  background-color: var(--neon-pink);
+  color: #fff;
+}
+
+.shareBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .dayModalWorkoutNotes {

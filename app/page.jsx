@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { collection, getDocs, doc, deleteDoc, setDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
@@ -18,9 +18,13 @@ import {
   Calendar,
   Info,
   X,
-  Moon
+  Moon,
+  Share2
 } from 'lucide-react';
 import styles from './page.module.css';
+import StrengthTracker from './components/StrengthTracker';
+import SocialShareCard from './components/SocialShareCard';
+import * as htmlToImage from 'html-to-image';
 
 export default function TrackerPage() {
   const { user, userData, loading } = useAuth();
@@ -39,6 +43,11 @@ export default function TrackerPage() {
   const [weightInput, setWeightInput] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [hoveredNode, setHoveredNode] = useState(null); // { index, x, y, weight, date }
+
+  // Social Sharing State
+  const shareRef = useRef(null);
+  const [sharingWorkout, setSharingWorkout] = useState(null);
+  const [isExporting, setIsExporting] = useState(false);
 
   // Sync Workout Calendar history when user loads
   useEffect(() => {
@@ -378,13 +387,19 @@ export default function TrackerPage() {
           className={`${styles.tabBtn} ${activeTab === 'calendar' ? styles.activeTab : ''}`}
           onClick={() => setActiveTab('calendar')}
         >
-          Workout Calendar
+          Calendar
         </button>
         <button 
           className={`${styles.tabBtn} ${activeTab === 'tracker' ? styles.activeTab : ''}`}
           onClick={() => setActiveTab('tracker')}
         >
-          Weight Tracker
+          Bodyweight
+        </button>
+        <button 
+          className={`${styles.tabBtn} ${activeTab === 'strength' ? styles.activeTab : ''}`}
+          onClick={() => setActiveTab('strength')}
+        >
+          Strength (1RM)
         </button>
       </div>
 
@@ -537,7 +552,37 @@ export default function TrackerPage() {
                       ) : (
                         <>
                           <div className={styles.dayModalWorkoutHeader}>
-                            <h4 className={styles.dayModalWorkoutName}>{w.name}</h4>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                              <h4 className={styles.dayModalWorkoutName}>{w.name}</h4>
+                              <button 
+                                className={styles.shareBtn} 
+                                onClick={async () => {
+                                  setSharingWorkout(w);
+                                  setIsExporting(true);
+                                  try {
+                                    // Give React a tick to render the hidden card
+                                    setTimeout(async () => {
+                                      if (shareRef.current) {
+                                        const dataUrl = await htmlToImage.toPng(shareRef.current, { quality: 0.95 });
+                                        const link = document.createElement('a');
+                                        link.download = `Pulse-Workout-${w.name.replace(/\s+/g, '-')}.png`;
+                                        link.href = dataUrl;
+                                        link.click();
+                                      }
+                                      setIsExporting(false);
+                                    }, 100);
+                                  } catch (error) {
+                                    console.error('oops, something went wrong!', error);
+                                    setIsExporting(false);
+                                  }
+                                }}
+                                disabled={isExporting}
+                                title="Share as Image"
+                              >
+                                <Share2 size={16} />
+                                <span>{isExporting && sharingWorkout?.id === w.id ? 'Generating...' : 'Share'}</span>
+                              </button>
+                            </div>
                             {w.notes && <p className={styles.dayModalWorkoutNotes}>{w.notes}</p>}
                           </div>
                           <div className={styles.dayModalStats}>
@@ -774,7 +819,15 @@ export default function TrackerPage() {
             </div>
           </div>
         </div>
+      {/* Tab C: Strength Progression */}
+      {activeTab === 'strength' && (
+        <div className={styles.tabContentPanel}>
+          <StrengthTracker history={history} />
+        </div>
       )}
+
+      {/* Hidden element for Strava-style Image Export */}
+      <SocialShareCard ref={shareRef} workout={sharingWorkout} userData={userData} />
     </div>
   );
 }

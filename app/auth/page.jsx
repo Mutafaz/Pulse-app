@@ -31,11 +31,8 @@ export default function AuthPage() {
     try {
       if (isLogin) {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        if (!userCredential.user.emailVerified) {
-          await signOut(auth);
-          setError('Please verify your email before logging in. Check your inbox.');
-          return;
-        }
+        // No email verification check required
+
         
         // Check if onboarding is complete
         const docRef = doc(db, "users", userCredential.user.uid);
@@ -48,10 +45,8 @@ export default function AuthPage() {
         
       } else {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        await sendEmailVerification(userCredential.user);
-        await signOut(auth); // Sign them out immediately
-        setMessage('Account created! Please check your email to verify your account before logging in.');
-        setIsLogin(true); // Switch to login view
+        // Automatically signed in by Firebase, redirect straight to onboarding
+        router.push('/onboarding');
       }
     } catch (err) {
       setError(err.message);

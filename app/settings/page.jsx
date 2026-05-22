@@ -3,10 +3,10 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { signOut, deleteUser } from 'firebase/auth';
-import { doc, deleteDoc, updateDoc, setDoc } from 'firebase/firestore';
+import { doc, deleteDoc, updateDoc, setDoc, getDocs, collection } from 'firebase/firestore';
 import { auth, db } from '../../lib/firebase';
 import { useAuth } from '../../lib/AuthContext';
-import { User, Calendar, Scale, Goal, Edit3, Check, X, Database } from 'lucide-react';
+import { User, Calendar, Scale, Goal, Edit3, Check, X, Database, Flame, Trophy } from 'lucide-react';
 import styles from './page.module.css';
 import { SEED_DATABASE } from '../../lib/exerciseDatabase';
 
@@ -17,6 +17,9 @@ export default function ProfilePage() {
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [editForm, setEditForm] = useState({});
   const [isSaving, setIsSaving] = useState(false);
+
+  // Gamification States
+  const [stats, setStats] = useState({ level: 1, title: 'Novice', streak: 0, totalVolume: 0 });
 
   const [adminTapCount, setAdminTapCount] = useState(0);
   const [adminTapTimer, setAdminTapTimer] = useState(null);
@@ -34,6 +37,66 @@ export default function ProfilePage() {
       handleToggleAdmin();
     }
   }, [adminTapCount]);
+
+  // Fetch History & Calculate Stats
+  useEffect(() => {
+    if (!user) return;
+    const fetchStats = async () => {
+      try {
+        const snap = await getDocs(collection(db, "users", user.uid, "history"));
+        const records = [];
+        let volume = 0;
+        snap.forEach(d => {
+          const data = d.data();
+          records.push(data);
+          volume += (data.totalVolume || 0);
+        });
+
+        // Calculate Level (10,000 lbs per level)
+        const lvl = Math.floor(volume / 10000) + 1;
+        let title = 'Novice Lifter';
+        if (lvl >= 5) title = 'Dedicated Regular';
+        if (lvl >= 10) title = 'Iron Athlete';
+        if (lvl >= 20) title = 'Elite Warrior';
+        if (lvl >= 50) title = 'Atlas';
+
+        // Calculate Streak
+        let currentStreak = 0;
+        if (records.length > 0) {
+          // Get unique ISO date strings
+          const dates = records
+            .map(r => new Date(r.createdAt).toISOString().split('T')[0])
+            .sort((a, b) => b.localeCompare(a)); // Descending
+          const uniqueDates = [...new Set(dates)];
+
+          const today = new Date();
+          const todayStr = today.toISOString().split('T')[0];
+          const yesterday = new Date(today);
+          yesterday.setDate(yesterday.getDate() - 1);
+          const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+          if (uniqueDates[0] === todayStr || uniqueDates[0] === yesterdayStr) {
+            currentStreak = 1;
+            let checkDate = new Date(uniqueDates[0]);
+            for (let i = 1; i < uniqueDates.length; i++) {
+              checkDate.setDate(checkDate.getDate() - 1);
+              const expectedStr = checkDate.toISOString().split('T')[0];
+              if (uniqueDates[i] === expectedStr) {
+                currentStreak++;
+              } else {
+                break;
+              }
+            }
+          }
+        }
+
+        setStats({ level: lvl, title, streak: currentStreak, totalVolume: volume });
+      } catch (err) {
+        console.error("Failed to load history for stats", err);
+      }
+    };
+    fetchStats();
+  }, [user]);
 
   const handleToggleAdmin = async () => {
     const code = window.prompt("Enter admin passcode:");
@@ -153,8 +216,11 @@ export default function ProfilePage() {
       { label: 'Baseline Weight', value: `${userData.weight || 0} lbs`, icon: Scale },
       { label: 'Age', value: `${userData.birthday ? calculateAge(userData.birthday) : (userData.age || 0)} years`, icon: Calendar },
       { label: 'Visual Map', value: userData.useVisualMap !== false ? 'Enabled' : 'Disabled', icon: Database },
+      { label: 'Level', value: `Lvl ${stats.level} (${stats.title})`, icon: Trophy },
+      { label: 'Current Streak', value: `${stats.streak} Days 🔥`, icon: Flame },
+      { label: 'Lifetime Volume', value: `${stats.totalVolume.toLocaleString()} lbs`, icon: Scale },
     ];
-  }, [userData]);
+  }, [userData, stats]);
 
   if (loading || !user || !userData) return null;
 
