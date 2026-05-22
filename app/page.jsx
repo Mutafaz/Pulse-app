@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { collection, getDocs, doc, deleteDoc, setDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, deleteDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from '../lib/AuthContext';
 import { 
@@ -19,7 +19,8 @@ import {
   Info,
   X,
   Moon,
-  Share2
+  Share2,
+  Pencil
 } from 'lucide-react';
 import styles from './page.module.css';
 import StrengthTracker from './components/StrengthTracker';
@@ -48,6 +49,10 @@ export default function TrackerPage() {
   const shareRef = useRef(null);
   const [sharingWorkout, setSharingWorkout] = useState(null);
   const [isExporting, setIsExporting] = useState(false);
+
+  // Calendar Edit/Delete state
+  const [editingWorkout, setEditingWorkout] = useState(null);
+  const [isDeletingWorkout, setIsDeletingWorkout] = useState(false);
 
   // Sync Workout Calendar history when user loads
   useEffect(() => {
@@ -97,6 +102,38 @@ export default function TrackerPage() {
       setWeightLogs(records);
     } catch (err) {
       console.error("Error fetching weight history:", err);
+    }
+  };
+
+  const handleDeleteWorkout = async (workoutId) => {
+    if (!window.confirm('Delete this workout? This cannot be undone.')) return;
+    setIsDeletingWorkout(true);
+    try {
+      await deleteDoc(doc(db, 'users', user.uid, 'history', workoutId));
+      setHistory(prev => prev.filter(w => w.id !== workoutId));
+      setSelectedDay(null);
+    } catch (err) {
+      console.error('Error deleting workout:', err);
+      alert('Failed to delete workout.');
+    } finally {
+      setIsDeletingWorkout(false);
+    }
+  };
+
+  const handleSaveWorkoutEdit = async () => {
+    if (!editingWorkout) return;
+    try {
+      await updateDoc(doc(db, 'users', user.uid, 'history', editingWorkout.id), {
+        name: editingWorkout.name,
+        notes: editingWorkout.notes,
+      });
+      setHistory(prev => prev.map(w =>
+        w.id === editingWorkout.id ? { ...w, name: editingWorkout.name, notes: editingWorkout.notes } : w
+      ));
+      setEditingWorkout(null);
+    } catch (err) {
+      console.error('Error updating workout:', err);
+      alert('Failed to save changes.');
     }
   };
 
@@ -548,40 +585,72 @@ export default function TrackerPage() {
                             <span className={styles.restDayLabel}>Active Recovery Day</span>
                           </div>
                           {w.notes && <p className={styles.dayModalNotes}>{w.notes}</p>}
+                          <div className={styles.workoutActions}>
+                            <button className={styles.deleteBtnSmall} onClick={() => handleDeleteWorkout(w.id)} disabled={isDeletingWorkout}>
+                              <Trash2 size={13} /> Delete
+                            </button>
+                          </div>
                         </>
+                      ) : editingWorkout?.id === w.id ? (
+                        /* ── Inline Edit Form ── */
+                        <div className={styles.editForm}>
+                          <input
+                            className={styles.editInput}
+                            value={editingWorkout.name}
+                            onChange={e => setEditingWorkout(prev => ({ ...prev, name: e.target.value }))}
+                            placeholder="Workout name"
+                          />
+                          <textarea
+                            className={styles.editTextarea}
+                            value={editingWorkout.notes || ''}
+                            onChange={e => setEditingWorkout(prev => ({ ...prev, notes: e.target.value }))}
+                            placeholder="Notes (optional)"
+                            rows={3}
+                          />
+                          <div className={styles.editFormActions}>
+                            <button className={styles.saveEditBtn} onClick={handleSaveWorkoutEdit}>Save</button>
+                            <button className={styles.cancelEditBtn} onClick={() => setEditingWorkout(null)}>Cancel</button>
+                          </div>
+                        </div>
                       ) : (
                         <>
                           <div className={styles.dayModalWorkoutHeader}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
                               <h4 className={styles.dayModalWorkoutName}>{w.name}</h4>
-                              <button 
-                                className={styles.shareBtn} 
-                                onClick={async () => {
-                                  setSharingWorkout(w);
-                                  setIsExporting(true);
-                                  try {
-                                    // Give React a tick to render the hidden card
-                                    setTimeout(async () => {
-                                      if (shareRef.current) {
-                                        const dataUrl = await htmlToImage.toPng(shareRef.current, { quality: 0.95 });
-                                        const link = document.createElement('a');
-                                        link.download = `Pulse-Workout-${w.name.replace(/\s+/g, '-')}.png`;
-                                        link.href = dataUrl;
-                                        link.click();
-                                      }
+                              <div className={styles.workoutActions}>
+                                <button
+                                  className={styles.shareBtn}
+                                  onClick={async () => {
+                                    setSharingWorkout(w);
+                                    setIsExporting(true);
+                                    try {
+                                      setTimeout(async () => {
+                                        if (shareRef.current) {
+                                          const dataUrl = await htmlToImage.toPng(shareRef.current, { quality: 0.95 });
+                                          const link = document.createElement('a');
+                                          link.download = `Pulse-Workout-${w.name.replace(/\s+/g, '-')}.png`;
+                                          link.href = dataUrl;
+                                          link.click();
+                                        }
+                                        setIsExporting(false);
+                                      }, 100);
+                                    } catch (error) {
+                                      console.error('oops, something went wrong!', error);
                                       setIsExporting(false);
-                                    }, 100);
-                                  } catch (error) {
-                                    console.error('oops, something went wrong!', error);
-                                    setIsExporting(false);
-                                  }
-                                }}
-                                disabled={isExporting}
-                                title="Share as Image"
-                              >
-                                <Share2 size={16} />
-                                <span>{isExporting && sharingWorkout?.id === w.id ? 'Generating...' : 'Share'}</span>
-                              </button>
+                                    }
+                                  }}
+                                  disabled={isExporting}
+                                  title="Share as Image"
+                                >
+                                  <Share2 size={14} />
+                                </button>
+                                <button className={styles.editBtnSmall} onClick={() => setEditingWorkout({ id: w.id, name: w.name, notes: w.notes || '' })} title="Edit workout">
+                                  <Pencil size={13} />
+                                </button>
+                                <button className={styles.deleteBtnSmall} onClick={() => handleDeleteWorkout(w.id)} disabled={isDeletingWorkout} title="Delete workout">
+                                  <Trash2 size={13} />
+                                </button>
+                              </div>
                             </div>
                             {w.notes && <p className={styles.dayModalWorkoutNotes}>{w.notes}</p>}
                           </div>
@@ -623,6 +692,7 @@ export default function TrackerPage() {
               </div>
             </div>
           )}
+
         </div>
       )}
 
@@ -824,7 +894,7 @@ export default function TrackerPage() {
       {/* Tab C: Strength Progression */}
       {activeTab === 'strength' && (
         <div className={styles.tabContentPanel}>
-          <StrengthTracker history={history} />
+          <StrengthTracker />
         </div>
       )}
 

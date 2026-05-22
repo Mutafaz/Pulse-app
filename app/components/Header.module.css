@@ -2,37 +2,77 @@
   position: fixed;
   top: 1rem;
   right: 1.25rem;
-  z-index: 100;
+  z-index: 200;
   pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
+/* Combined pill: Lvl + Streak + Profile button all in one row */
+.statsContainer {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(18, 18, 22, 0.75);
+  border: 1px solid var(--border-color);
+  padding: 0.3rem 0.5rem;
+  border-radius: 9999px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+}
+
+.statBadge {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--text-main);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0 0.35rem;
+}
+
+.levelIcon {
+  color: #fbbf24;
+}
+
+.streakIcon {
+  color: #ef4444;
+}
+
+.divider {
+  width: 1px;
+  height: 18px;
+  background: var(--border-color);
+  margin: 0 0.15rem;
+}
+
+/* Profile button inside the combined pill */
 .profileBtn {
   pointer-events: auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 42px;
-  height: 42px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
-  background: rgba(26, 26, 26, 0.6);
-  border: 1px solid var(--border-color);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255, 42, 117, 0.12);
+  border: 1px solid rgba(255, 42, 117, 0.25);
   color: var(--text-main);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s ease;
 }
 
 .profileIcon {
   color: var(--text-main);
-  transition: color 0.3s ease;
+  transition: color 0.2s ease;
 }
 
 .profileBtn:hover {
-  background: rgba(255, 42, 117, 0.08);
+  background: rgba(255, 42, 117, 0.25);
   border-color: var(--primary-color);
-  box-shadow: 0 0 12px var(--primary-dim);
-  transform: scale(1.05);
+  transform: scale(1.08);
 }
 
 .profileBtn:hover .profileIcon {
@@ -41,37 +81,4 @@
 
 .profileBtn:active {
   transform: scale(0.95);
-}
-
-/* Gamification Stats in Header */
-.statsContainer {
-  pointer-events: auto;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-right: 1rem;
-}
-
-.statBadge {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  background: rgba(26, 26, 26, 0.6);
-  border: 1px solid var(--border-color);
-  padding: 0.35rem 0.65rem;
-  border-radius: 9999px;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  color: var(--text-main);
-  font-size: 0.75rem;
-  font-weight: 700;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
-}
-
-.levelIcon {
-  color: #fbbf24; /* Amber */
-}
-
-.streakIcon {
-  color: #ef4444; /* Red/Orange */
 }

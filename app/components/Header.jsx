@@ -63,26 +63,29 @@ export default function Header() {
 
   if (!user || !userData) return null;
   if (pathname === '/auth' || pathname === '/onboarding') return null;
+  if (pathname === '/workout' || pathname.startsWith('/workout/')) return null;
 
   return (
     <header className={styles.header}>
-      {/* Gamification Stats */}
       <div className={styles.statsContainer}>
         <div className={styles.statBadge}>
-          <Trophy size={14} className={styles.levelIcon} />
+          <Trophy size={13} className={styles.levelIcon} />
           <span>Lvl {stats.level}</span>
         </div>
         {stats.streak > 0 && (
-          <div className={styles.statBadge}>
-            <Flame size={14} className={styles.streakIcon} />
-            <span>{stats.streak}</span>
-          </div>
+          <>
+            <div className={styles.divider} />
+            <div className={styles.statBadge}>
+              <Flame size={13} className={styles.streakIcon} />
+              <span>{stats.streak}</span>
+            </div>
+          </>
         )}
+        <div className={styles.divider} />
+        <Link href="/settings" className={styles.profileBtn} title="View Profile">
+          <User size={16} className={styles.profileIcon} />
+        </Link>
       </div>
-
-      <Link href="/settings" className={styles.profileBtn} title="View Profile">
-        <User size={20} className={styles.profileIcon} />
-      </Link>
     </header>
   );
 }

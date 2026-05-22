@@ -1048,3 +1048,135 @@
   border-radius: 50%;
   background-color: #00e676;
 }
+
+/* Workout card action buttons row */
+.workoutActions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.editBtnSmall,
+.deleteBtnSmall {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.3rem 0.55rem;
+  border-radius: 9999px;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.editBtnSmall {
+  color: var(--text-muted);
+}
+
+.editBtnSmall:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  background: rgba(255, 42, 117, 0.08);
+}
+
+.deleteBtnSmall {
+  color: var(--text-muted);
+}
+
+.deleteBtnSmall:hover:not(:disabled) {
+  border-color: #ef4444;
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.deleteBtnSmall:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Inline edit form inside day modal */
+.editForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.25rem 0;
+}
+
+.editInput {
+  width: 100%;
+  padding: 0.6rem 0.85rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background: var(--surface-color);
+  color: var(--text-main);
+  font-size: 0.95rem;
+  font-weight: 700;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+
+.editInput:focus {
+  border-color: var(--primary-color);
+}
+
+.editTextarea {
+  width: 100%;
+  padding: 0.6rem 0.85rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background: var(--surface-color);
+  color: var(--text-main);
+  font-size: 0.88rem;
+  outline: none;
+  resize: vertical;
+  box-sizing: border-box;
+  font-family: inherit;
+  transition: border-color 0.15s;
+}
+
+.editTextarea:focus {
+  border-color: var(--primary-color);
+}
+
+.editFormActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.saveEditBtn {
+  flex: 1;
+  padding: 0.6rem;
+  border-radius: var(--radius-sm);
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.saveEditBtn:hover {
+  opacity: 0.85;
+}
+
+.cancelEditBtn {
+  padding: 0.6rem 1rem;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.cancelEditBtn:hover {
+  border-color: var(--text-muted);
+  color: var(--text-main);
+}
