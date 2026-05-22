@@ -881,7 +881,9 @@
   background: rgba(0, 0, 0, 0.85);
   z-index: 1500;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
   backdrop-filter: blur(4px);
   animation: fadeInOverlay 0.2s ease-out;
 }
@@ -893,19 +895,20 @@
 
 .searchPanel {
   background: var(--surface-light);
-  border-radius: 1.5rem 1.5rem 0 0;
-  padding: 1.5rem 1.5rem 2.5rem;
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
   max-height: 85vh;
   overflow-y: auto;
   width: 100%;
-  border-top: 1px solid var(--border-color);
-  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.5);
-  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  max-width: 500px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  animation: modalPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@keyframes slideUp {
-  from { transform: translateY(100%); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+@keyframes modalPop {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
 .searchHeader {
@@ -1331,18 +1334,21 @@
   background: rgba(0, 0, 0, 0.85);
   z-index: 1500;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
   backdrop-filter: blur(4px);
 }
 
 .restDayPanel {
   background: var(--surface-light);
-  border-radius: 1.5rem 1.5rem 0 0;
-  padding: 1.5rem 1.5rem 2.5rem;
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
   width: 100%;
-  border-top: 1px solid var(--border-color);
-  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.5);
-  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  max-width: 500px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  animation: modalPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .restDayTextarea {

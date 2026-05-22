@@ -99,41 +99,8 @@ export default function OverviewPage() {
 
   // Calculate active muscles and load metrics for the selected day or overall last 7 days
   useEffect(() => {
-    // Standard default fallback datasets in case user has no workout history
-    const FALLBACK_LOADS = {
-      all: {
-        chest: 85, shoulders: 70, triceps: 75, lats: 80, traps: 55, abs: 50,
-        biceps: 65, forearms: 40, lower_back: 60, glutes: 70, quads: 85, hamstrings: 75, calves: 45
-      },
-      // Maps standard training routines to specific weekdays for immersive mock visual
-      monday: { chest: 95, shoulders: 70, triceps: 85, abs: 45 },
-      tuesday: { lats: 90, traps: 70, biceps: 80, forearms: 50, lower_back: 65 },
-      wednesday: { glutes: 85, quads: 95, hamstrings: 85, calves: 60 },
-      thursday: { shoulders: 90, traps: 60, abs: 85 },
-      friday: { chest: 75, lats: 70, shoulders: 60, biceps: 65, triceps: 65, quads: 70, hamstrings: 60 },
-      saturday: {},
-      sunday: {}
-    };
-
     if (history.length === 0) {
-      // Parse day keywords based on what is selected
-      if (activeDay === 'all') {
-        setMuscleLoad(FALLBACK_LOADS.all);
-      } else {
-        const selectedDayObj = timelineDays.find(d => d.dayKey === activeDay);
-        if (selectedDayObj) {
-          const dayNameLower = selectedDayObj.name.toLowerCase();
-          // Map to standard mock workout split weekdays
-          if (dayNameLower === 'mon') setMuscleLoad(FALLBACK_LOADS.monday);
-          else if (dayNameLower === 'tue') setMuscleLoad(FALLBACK_LOADS.tuesday);
-          else if (dayNameLower === 'wed') setMuscleLoad(FALLBACK_LOADS.wednesday);
-          else if (dayNameLower === 'thu') setMuscleLoad(FALLBACK_LOADS.thursday);
-          else if (dayNameLower === 'fri') setMuscleLoad(FALLBACK_LOADS.friday);
-          else setMuscleLoad({});
-        } else {
-          setMuscleLoad({});
-        }
-      }
+      setMuscleLoad({});
       return;
     }
 
