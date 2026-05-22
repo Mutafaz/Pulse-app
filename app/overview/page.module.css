@@ -1,0 +1,544 @@
+.container {
+  padding: 1.5rem;
+  padding-bottom: 6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-height: 100vh;
+}
+
+.header {
+  margin-bottom: 0.5rem;
+}
+
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-bottom: 0.25rem;
+}
+
+.subtitle {
+  color: var(--text-muted);
+  font-size: 1rem;
+}
+
+/* --- Gender Slider Selector Toggle --- */
+.genderToggle {
+  display: flex;
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  padding: 4px;
+  border-radius: var(--radius-full, 9999px);
+  gap: 2px;
+}
+
+.genderToggleBtn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 0.5rem 1.25rem;
+  border-radius: var(--radius-full, 9999px);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.genderToggleBtn.active {
+  background-color: var(--primary-color);
+  color: white;
+  box-shadow: 0 2px 10px rgba(255, 42, 117, 0.35);
+}
+
+.genderToggleBtn:hover:not(.active) {
+  color: var(--text-main);
+}
+
+.calendarWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.allDaysButton {
+  background-color: var(--surface-light);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  color: var(--text-main);
+  font-weight: 750;
+  font-size: 0.9rem;
+  letter-spacing: 0.5px;
+  width: 100%;
+}
+
+.allDaysButton:hover {
+  border-color: rgba(255, 42, 117, 0.4);
+  background-color: var(--surface-color);
+  transform: translateY(-1px);
+}
+
+.allDaysActive {
+  border-color: var(--primary-color) !important;
+  background-color: var(--primary-dim) !important;
+  color: white !important;
+  box-shadow: 0 4px 15px rgba(255, 42, 117, 0.2);
+}
+
+.allDaysActive .allDaysLabel {
+  text-shadow: 0 0 8px rgba(255, 42, 117, 0.5);
+}
+
+.allDaysLabel {
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  letter-spacing: 0.75px;
+}
+
+.allDaysIcon {
+  color: var(--primary-color);
+  transition: transform 0.2s ease;
+}
+
+.allDaysActive .allDaysIcon {
+  transform: scale(1.1);
+  filter: drop-shadow(0 0 3px var(--primary-color));
+}
+
+/* --- Dynamic Timeline 7-Day Calendar Strip with Week Pagination --- */
+.calendarContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.calendarStrip {
+  display: flex;
+  gap: 0.5rem;
+  flex: 1;
+  overflow-x: auto;
+  scrollbar-width: none; /* Hide scrollbar for Firefox */
+  padding: 2px 0;
+}
+
+.calendarStrip::-webkit-scrollbar {
+  display: none; /* Hide scrollbar for Chrome/Safari */
+}
+
+.calendarDayCard {
+  flex: 1;
+  min-width: 54px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  padding: 0.85rem 0.35rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background-color: var(--surface-light);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: white;
+}
+
+.calendarDayCard:hover {
+  border-color: rgba(255, 42, 117, 0.4);
+  background-color: var(--surface-color);
+  transform: translateY(-1px);
+}
+
+.activeDay {
+  border-color: var(--primary-color) !important;
+  background-color: var(--primary-dim) !important;
+  color: white !important;
+  box-shadow: 0 4px 15px rgba(255, 42, 117, 0.2);
+}
+
+.todayBorder {
+  border-style: dashed;
+  border-color: rgba(255, 42, 117, 0.6);
+}
+
+.dayLabel {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+}
+
+.activeDay .dayLabel {
+  color: var(--primary-color);
+}
+
+.dateLabel {
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.scrollBtn {
+  background-color: var(--surface-light);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  width: 42px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+}
+
+.scrollBtn:hover:not(:disabled) {
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+  background-color: var(--primary-dim);
+  box-shadow: 0 0 10px rgba(255, 42, 117, 0.25);
+  transform: scale(1.02);
+}
+
+.scrollBtn:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+  background-color: rgba(255, 255, 255, 0.01);
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+/* --- Stats breakdown header --- */
+.workoutStatsRow {
+  margin-top: 0.5rem;
+}
+
+.statsRowTitle {
+  font-size: 1.1rem;
+  font-weight: 750;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.statsIcon {
+  color: var(--primary-color);
+}
+
+/* --- Anatomy SVG Display Grid --- */
+.anatomyGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  width: 100%;
+}
+
+@media (max-width: 600px) {
+  .anatomyGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.anatomyCard {
+  background-color: var(--surface-light);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.anatomyCardTitle {
+  font-size: 0.95rem;
+  font-weight: 750;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.75px;
+  margin: 0;
+}
+
+.bodySvgWrapper {
+  position: relative;
+  width: 100%;
+  max-width: 220px;
+  aspect-ratio: 100 / 210;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* --- Grid Pattern Background HUD overlay --- */
+.svgBackgroundGrid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 15px 15px;
+  background-position: center;
+  border-radius: var(--radius-md);
+  pointer-events: none;
+}
+
+.bodySvg {
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.bodySilhouette {
+  fill: rgba(255, 255, 255, 0.02);
+  stroke: rgba(255, 255, 255, 0.05);
+  stroke-width: 1;
+}
+
+.bodyOutlineFrame {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* --- Neon Glowing Muscle SVG Fills --- */
+.musclePath {
+  fill: rgba(255, 255, 255, 0.06);
+  stroke: rgba(0, 0, 0, 0.6);
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.musclePath:hover {
+  fill: rgba(255, 42, 117, 0.2) !important;
+  stroke: var(--primary-color) !important;
+  stroke-width: 1.5;
+  cursor: pointer;
+}
+
+/* High load loading: Neon Pink Core Glow */
+.loadHigh {
+  fill: rgba(255, 42, 117, 0.85);
+  stroke: #ff7ebb;
+  stroke-width: 1.5;
+  filter: drop-shadow(0 0 4px rgba(255, 42, 117, 0.75));
+}
+
+/* Medium load loading: Balanced Soft Pink Glow */
+.loadMedium {
+  fill: rgba(255, 42, 117, 0.45);
+  stroke: var(--primary-color);
+  stroke-width: 1.2;
+  filter: drop-shadow(0 0 3px rgba(255, 42, 117, 0.4));
+}
+
+/* Low load loading: Faint Pink Highlight */
+.loadLow {
+  fill: rgba(255, 42, 117, 0.2);
+  stroke: rgba(255, 42, 117, 0.6);
+  stroke-width: 1;
+}
+
+/* --- Active Muscle Focus Breakdown Card --- */
+.insightsCard {
+  background-color: var(--surface-light);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.insightsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.insightsTitleCol {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.accentIcon {
+  color: var(--primary-color);
+}
+
+.insightsTitle {
+  font-size: 1.15rem;
+  font-weight: 800;
+  margin: 0;
+  color: var(--text-main);
+}
+
+.muscleBadge {
+  background-color: rgba(255, 42, 117, 0.1);
+  color: var(--primary-color);
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 42, 117, 0.2);
+}
+
+/* --- Empty state insights --- */
+.emptyInsights {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem 1.5rem;
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-md);
+  background-color: var(--surface-color);
+}
+
+.infoIcon {
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+}
+
+.emptyText {
+  font-weight: 750;
+  font-size: 1rem;
+  margin: 0 0 0.25rem;
+  color: var(--text-main);
+}
+
+.emptySubText {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* --- Muscle Activation Score Progress Indicators --- */
+.muscleScoresGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem 1.5rem;
+}
+
+@media (max-width: 600px) {
+  .muscleScoresGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.muscleProgressRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.muscleProgressLabels {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+}
+
+.muscleProgressName {
+  font-weight: 750;
+  color: var(--text-main);
+}
+
+.muscleProgressPct {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.progressBarBg {
+  height: 6px;
+  background-color: var(--surface-color);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  width: 100%;
+}
+
+.progressBarFill {
+  height: 100%;
+  border-radius: var(--radius-sm);
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fillHigh {
+  background-color: var(--primary-color);
+  box-shadow: 0 0 8px var(--primary-color);
+}
+
+.fillMedium {
+  background-color: rgba(255, 42, 117, 0.6);
+}
+
+.fillLow {
+  background-color: rgba(255, 42, 117, 0.35);
+}
+
+/* --- Cyber AI Tip recommendation --- */
+.aiTipBox {
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.aiTipTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.aiTipIcon {
+  color: var(--primary-color);
+}
+
+.aiTipTitle {
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--primary-color);
+  letter-spacing: 0.5px;
+}
+
+.aiTipContent {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+  margin: 0;
+}

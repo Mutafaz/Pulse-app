@@ -1,0 +1,395 @@
+.container {
+  padding: 1.5rem;
+  padding-bottom: 6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-height: 100vh;
+}
+
+.header {
+  margin-bottom: 0.25rem;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-bottom: 0.25rem;
+}
+
+.subtitle {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+/* --- Profile Card Layout --- */
+.card {
+  background-color: var(--surface-light);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.userInfoHeader {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.avatarIconBg {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-full, 9999px);
+  background-color: var(--surface-color);
+  border: 1.5px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.avatarIcon {
+  color: var(--primary-color);
+}
+
+.userName {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.userEmail {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin: 0.2rem 0 0 0;
+}
+
+.accountActionDivider {
+  height: 1px;
+  background-color: var(--border-color);
+  margin: 0.5rem 0;
+}
+
+/* --- Profile Details Matrix Grid --- */
+.profileDetailsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+@media (max-width: 480px) {
+  .profileDetailsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.profileDetailCard {
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.detailIconCol {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background-color: var(--surface-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.detailIcon {
+  color: var(--primary-color);
+}
+
+.detailTextCol {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.detailLabel {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+}
+
+.detailValue {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+/* --- Account Buttons --- */
+.btnSecondary {
+  background-color: var(--surface-color);
+  color: var(--text-main);
+  padding: 0.85rem;
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  font-weight: 750;
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.btnSecondary:hover {
+  background-color: var(--surface-light);
+  border-color: var(--text-muted);
+}
+
+.btnDanger {
+  background-color: rgba(239, 68, 68, 0.08);
+  color: #ff4d4d;
+  padding: 0.85rem;
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  font-weight: 750;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.btnDanger:hover {
+  background-color: #ff4d4d;
+  color: white;
+  border-color: #ff4d4d;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+/* ─── Inline Profile Editing ─────────────────────────────────────────────── */
+
+/* Header row: avatar+name on left, edit controls on right */
+.profileCardHeader {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Holds the save/cancel or pencil button(s) */
+.editToggleBtnGroup {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+/* Ghost pencil button */
+.pencilBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.35rem;
+  border-radius: var(--radius-sm);
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.pencilBtn:hover {
+  color: var(--primary-color);
+  background: rgba(255, 42, 117, 0.08);
+}
+
+/* Save button — filled pink */
+.saveBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--primary-color);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 0.4rem 0.8rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 0 10px rgba(255, 42, 117, 0.3);
+  min-width: 2.2rem;
+}
+
+.saveBtn:hover:not(:disabled) {
+  opacity: 0.88;
+  box-shadow: 0 0 16px rgba(255, 42, 117, 0.5);
+}
+
+.saveBtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Cancel button — ghost outlined */
+.cancelBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 0.4rem 0.6rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.cancelBtn:hover {
+  color: var(--text-main);
+  border-color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* Edit form mirrors the static grid layout */
+.editFormGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+@media (max-width: 480px) {
+  .editFormGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Editable card — glows pink on any focused child */
+.editDetailCard {
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0.75rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.editDetailCard:focus-within {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(255, 42, 117, 0.15), 0 0 12px rgba(255, 42, 117, 0.08);
+}
+
+/* Transparent text input inside an edit card */
+.editInput {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-main);
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-family: inherit;
+  padding: 0;
+  margin: 0;
+  -moz-appearance: textfield;
+}
+
+.editInput::-webkit-outer-spin-button,
+.editInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.editInput::placeholder {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+/* Transparent select inside an edit card */
+.editSelect {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-main);
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-family: inherit;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.editSelect option {
+  background-color: var(--surface-light);
+  color: var(--text-main);
+}
+
+/* Gender toggle row */
+.genderToggleRow {
+  display: flex;
+  flex-direction: row;
+  gap: 0.4rem;
+  margin-top: 0.1rem;
+}
+
+/* Individual gender toggle button */
+.genderToggleBtn {
+  padding: 0.2rem 0.65rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.genderToggleBtn:hover {
+  border-color: var(--primary-color);
+  color: var(--text-main);
+}
+
+/* Active/selected gender toggle */
+.genderToggleBtnActive {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: #fff;
+  box-shadow: 0 0 8px rgba(255, 42, 117, 0.35);
+}
+
+/* Row that holds numeric input(s) + suffix label(s) */
+.heightInputRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: nowrap;
+}
+
+/* Muted suffix label: ft / in / lbs / yrs */
+.heightSuffix {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: lowercase;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}

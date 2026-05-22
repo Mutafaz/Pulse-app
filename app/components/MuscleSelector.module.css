@@ -1,0 +1,90 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 1rem;
+}
+
+.svgContainer {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.svgContainer svg {
+  width: 100%;
+  height: auto;
+  max-height: 500px;
+  object-fit: contain;
+}
+
+/* Base styles for the bodymap paths — soft white silhouette by default */
+.svgContainer :global(.bodymap) {
+  color: rgba(255, 255, 255, 0.22);
+  transition: color 0.25s ease, filter 0.25s ease;
+  cursor: default;
+}
+
+/* Remove default hover state classes embedded in SVG if they interfere */
+.svgContainer :global(.text-mw-gray) {
+  color: inherit;
+}
+
+/* Hide the joint dot ellipses */
+.svgContainer :global(ellipse) {
+  display: none !important;
+}
+
+/* ===================== */
+/* --- INTERACTIVE MODE --- */
+/* ===================== */
+.modeInteractive :global(.bodymap) {
+  cursor: pointer;
+}
+
+.modeInteractive :global(.bodymap):hover {
+  color: rgba(255, 46, 115, 0.7) !important;
+  filter: drop-shadow(0 0 6px rgba(255, 46, 115, 0.45));
+}
+
+.modeInteractive :global(.bodymap.selected) {
+  color: var(--neon-cyan, #00f0ff) !important;
+  filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.6));
+}
+
+/* ===================== */
+/* --- HEATMAP MODE --- */
+/* 4-tier color scale:   */
+/*  Low     → Ice blue   */
+/*  MedLow  → Teal/green */
+/*  Med     → Orange     */
+/*  High    → Hot red    */
+/* ===================== */
+
+/* Tier 1 — Low (1–24%): Cool blue */
+.modeHeatmap :global(.bodymap.loadLow) {
+  color: rgba(56, 182, 255, 0.55) !important;
+  filter: drop-shadow(0 0 4px rgba(56, 182, 255, 0.3));
+}
+
+/* Tier 2 — Med-Low (25–49%): Teal/lime */
+.modeHeatmap :global(.bodymap.loadMedLow) {
+  color: rgba(52, 211, 153, 0.7) !important;
+  filter: drop-shadow(0 0 5px rgba(52, 211, 153, 0.35));
+}
+
+/* Tier 3 — Med (50–74%): Amber/orange */
+.modeHeatmap :global(.bodymap.loadMed) {
+  color: rgba(251, 146, 60, 0.85) !important;
+  filter: drop-shadow(0 0 6px rgba(251, 146, 60, 0.45));
+}
+
+/* Tier 4 — High (75–100%): Hot red */
+.modeHeatmap :global(.bodymap.loadHigh) {
+  color: rgba(239, 68, 68, 1) !important;
+  filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.65));
+}

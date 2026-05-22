@@ -1,0 +1,1480 @@
+.container {
+  padding: 1.5rem;
+  padding-bottom: 6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-height: 100vh;
+}
+
+.header { margin-bottom: 0.5rem; }
+
+.title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-bottom: 0.25rem;
+}
+
+.subtitle {
+  color: var(--text-muted);
+  font-size: 1rem;
+}
+
+.sectionTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.5rem;
+}
+
+.grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* --- Cards --- */
+.card {
+  background-color: var(--surface-light);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.card:hover { border-color: var(--primary-color); }
+
+.cardMain {
+  flex: 1;
+  padding: 1.25rem;
+  cursor: pointer;
+}
+
+.cardTitle {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.cardDetails {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.cardActions {
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid var(--border-color);
+}
+
+.cardActions button {
+  padding: 0.75rem;
+  color: var(--text-muted);
+  transition: color 0.15s;
+}
+
+.cardActions button:hover { color: var(--primary-color); }
+.cardActions button:last-child:hover { color: var(--danger-color); }
+
+/* --- Folder Blocks --- */
+.folderBlock {
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.folderHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.folderHeader:hover { background-color: var(--surface-light); }
+
+.folderTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.folderIcon { color: var(--primary-color); }
+
+.folderName {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.folderInput {
+  background: transparent;
+  border: 1px solid var(--primary-color);
+  color: var(--text-main);
+  font-size: 1.1rem;
+  font-weight: 700;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-sm);
+  outline: none;
+  width: 160px;
+}
+
+.folderEditBtn {
+  padding: 0.5rem;
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  transition: color 0.15s;
+}
+
+.folderEditBtn:hover { color: var(--primary-color); }
+
+.folderContent {
+  padding: 0 0.75rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* --- Confirmation Modal --- */
+.modal {
+  background-color: var(--surface-light);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.previewList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.previewItem {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  background-color: var(--surface-color);
+  border-radius: var(--radius-md);
+}
+
+.previewNum {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: var(--primary-dim);
+  color: var(--primary-color);
+  font-weight: 800;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.previewName {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.previewMeta {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* --- Buttons --- */
+.btnPrimary {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  font-size: 1.1rem;
+  font-weight: 700;
+  border: none;
+  width: 100%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+}
+
+.btnPrimary:hover { background-color: var(--primary-hover); }
+
+.btnSecondary {
+  background-color: transparent;
+  color: var(--text-main);
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  font-size: 1.1rem;
+  font-weight: 600;
+  border: 1px solid var(--border-color);
+  transition: all 0.2s ease;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btnSecondary:hover { background-color: var(--surface-color); }
+
+/* --- Active Workout UI --- */
+.activeHeader {
+  position: sticky;
+  top: 0;
+  background-color: var(--bg-color);
+  z-index: 10;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  margin-top: -1.5rem;
+}
+
+.timerGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.globalTimer {
+  font-size: 1.5rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--primary-color);
+}
+
+.restTimer {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.restTimer.active { color: var(--success-color); }
+
+.exerciseBlock {
+  background-color: var(--surface-light);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  margin-bottom: 0.5rem;
+  border: 1px solid var(--border-color);
+}
+
+.exerciseHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.exerciseName {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.removeExercise {
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  transition: color 0.15s;
+}
+
+.removeExercise:hover { color: var(--danger-color); }
+
+.setTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 0.75rem;
+}
+
+.setTable th {
+  text-align: left;
+  padding: 0.4rem 0.5rem;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.setTable td {
+  padding: 0.4rem 0.5rem;
+  vertical-align: middle;
+}
+
+.setRow { transition: background 0.2s; }
+
+.setRow.completed { background-color: rgba(34, 197, 94, 0.08); }
+
+.setLabel {
+  font-weight: 700;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background-color: var(--surface-color);
+  color: var(--text-muted);
+}
+
+.setLabel.warmup { color: #f59e0b; background-color: rgba(245, 158, 11, 0.1); }
+.setLabel.drop { color: #ef4444; background-color: rgba(239, 68, 68, 0.1); }
+
+.inputSmall {
+  width: 64px;
+  padding: 0.5rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background-color: var(--surface-color);
+  color: white;
+  text-align: center;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.95rem;
+}
+
+.inputSmall:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.checkBtn {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background-color: var(--surface-color);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.checkBtn.completed {
+  background-color: var(--success-color);
+  border-color: var(--success-color);
+  color: white;
+}
+
+.addSetRow {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btnAddSet {
+  flex: 1;
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  padding: 0.5rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btnAddSet:hover {
+  background-color: var(--surface-light);
+  color: var(--text-main);
+  border-color: var(--text-muted);
+}
+
+.finishBtn {
+  margin-top: 1rem;
+  background-color: var(--success-color);
+}
+
+.finishBtn:hover { background-color: #16a34a; }
+
+/* --- Action Row --- */
+.actionRow {
+  display: flex;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+/* --- Drag over visual feedback --- */
+.dragOver {
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 0 12px rgba(255, 42, 117, 0.4);
+  background-color: rgba(255, 42, 117, 0.03) !important;
+}
+
+/* --- Empty States --- */
+.emptyFolderPlaceholder {
+  padding: 1.5rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-md);
+  margin: 0.5rem 0;
+  background-color: var(--surface-color);
+}
+
+.ungroupedSection {
+  margin-top: 1rem;
+  border: 2px dashed transparent;
+  border-radius: var(--radius-lg);
+  padding: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.emptyDragZone {
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-md);
+  background-color: var(--surface-color);
+  transition: all 0.2s;
+}
+
+/* --- Folder controls enhancements --- */
+.folderActions {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.folderDeleteBtn {
+  padding: 0.5rem;
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  transition: color 0.15s;
+}
+
+.folderDeleteBtn:hover {
+  color: var(--danger-color);
+}
+
+/* --- Pre-workout Customizer Layout --- */
+.previewItemEdit {
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.previewItemEdit:last-child {
+  margin-bottom: 0;
+}
+
+.previewItemHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.previewEditRow {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.editField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+  min-width: 80px;
+}
+
+.fieldLabel {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.modalInputSmall {
+  width: 100%;
+  padding: 0.4rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background-color: var(--surface-light);
+  color: white;
+  font-weight: 600;
+  text-align: center;
+}
+
+.modalInputMedium {
+  width: 100%;
+  padding: 0.4rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background-color: var(--surface-light);
+  color: white;
+  font-weight: 600;
+  text-align: center;
+}
+
+.modalSelect {
+  width: 100%;
+  padding: 0.4rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background-color: var(--surface-light);
+  color: white;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+}
+
+/* --- Trash Button for Set Removal --- */
+.btnDeleteSet {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s;
+}
+
+.btnDeleteSet:hover {
+  color: var(--danger-color);
+}
+
+/* --- Modal inline editing & header styles --- */
+.modalTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.modalTitleInput {
+  background-color: var(--surface-color);
+  border: 1px solid var(--primary-color);
+  color: var(--text-main);
+  font-size: 1.5rem;
+  font-weight: 800;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-sm);
+  outline: none;
+  width: 250px;
+}
+
+.pencilBtn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  transition: color 0.15s;
+}
+
+.pencilBtn:hover {
+  color: var(--primary-color);
+}
+
+.modalInputManual {
+  width: 100%;
+  padding: 0.4rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background-color: var(--surface-light);
+  color: white;
+  font-weight: 600;
+  text-align: center;
+  margin-top: 0.25rem;
+}
+
+.modalInputManual:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+/* --- Modal action buttons row --- */
+.modalActionsRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.modalBtnGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.btnDanger {
+  background-color: transparent;
+  color: var(--danger-color);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+}
+
+.btnDanger:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+  border-color: var(--danger-color);
+}
+
+.btnCancel {
+  background-color: transparent;
+  color: var(--text-muted);
+  border: none;
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btnCancel:hover {
+  color: var(--text-main);
+  background-color: var(--surface-color);
+}
+
+.modalHeaderButtons {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.modalHeaderDeleteBtn {
+  background: transparent;
+  border: none;
+  color: var(--danger-color);
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  opacity: 0.8;
+}
+
+.modalHeaderDeleteBtn:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+/* --- Drop Set Indentation & Connector Tree --- */
+.dropRow {
+  background-color: rgba(255, 42, 117, 0.015);
+}
+
+.dropRow td:first-child {
+  padding-left: 2rem !important;
+  position: relative;
+}
+
+.dropRow td:first-child::before {
+  content: '';
+  position: absolute;
+  left: 0.9rem;
+  top: 0;
+  bottom: 50%;
+  width: 2px;
+  background-color: var(--border-color);
+}
+
+.dropRow td:first-child::after {
+  content: '';
+  position: absolute;
+  left: 0.9rem;
+  top: 50%;
+  width: 0.75rem;
+  height: 2px;
+  background-color: var(--border-color);
+}
+
+/* --- Exercise Block Rest Timer Widget --- */
+.exerciseRestContainer {
+  margin-top: 1.25rem;
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  text-align: center;
+  animation: slideDown 0.25s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.exerciseRestHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.clockOuterWrapper {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.clockCircleContainer {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  flex-shrink: 0;
+  margin-bottom: 0.25rem;
+}
+
+.clockSvg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg); /* Start at 12 o'clock */
+}
+
+.clockBg {
+  fill: none;
+  stroke: var(--surface-light);
+  stroke-width: 3;
+}
+
+.clockFill {
+  fill: none;
+  stroke: var(--primary-color);
+  stroke-width: 3;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s linear; /* Smooth second-by-second countdown */
+}
+
+.clockTimeCenter {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.clockTimeText {
+  font-size: 2.25rem;
+  font-weight: 850;
+  color: var(--text-main);
+  font-variant-numeric: tabular-nums;
+  line-height: 0.95;
+  letter-spacing: -0.5px;
+}
+
+.clockSubText {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+  line-height: 1.2;
+  margin-top: 4px;
+}
+
+.clockInfoCol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.clockInfoTitle {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.clockInfoSub {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.skipRestBtn {
+  background: transparent;
+  border: 1px solid rgba(255, 42, 117, 0.4);
+  color: var(--primary-color);
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 0.5rem 1.5rem;
+  border-radius: var(--radius-pill, 9999px);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  margin-top: 0.25rem;
+}
+
+.skipRestBtn:hover {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 42, 117, 0.25);
+}
+
+.skipRestBtn:active {
+  transform: translateY(0);
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   EXERCISE SEARCH BOTTOM SHEET
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.searchSheet {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 1500;
+  display: flex;
+  align-items: flex-end;
+  backdrop-filter: blur(4px);
+  animation: fadeInOverlay 0.2s ease-out;
+}
+
+@keyframes fadeInOverlay {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.searchPanel {
+  background: var(--surface-light);
+  border-radius: 1.5rem 1.5rem 0 0;
+  padding: 1.5rem 1.5rem 2.5rem;
+  max-height: 85vh;
+  overflow-y: auto;
+  width: 100%;
+  border-top: 1px solid var(--border-color);
+  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.searchHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.searchTitle {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.searchInputWrapper {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 0.75rem 0.75rem 0.75rem 2.5rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background-color: var(--surface-color);
+  color: var(--text-main);
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+
+.searchInput:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(255, 42, 117, 0.15);
+}
+
+.musclePillRow {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+  scrollbar-width: none;
+}
+
+.musclePillRow::-webkit-scrollbar { display: none; }
+
+.musclePill {
+  flex-shrink: 0;
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.musclePill:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.musclePillActive {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: white;
+}
+
+.exerciseList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.exerciseItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  transition: all 0.15s ease;
+}
+
+.exerciseItem:hover {
+  border-color: var(--primary-color);
+  background-color: rgba(255, 42, 117, 0.04);
+}
+
+.exerciseItemInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.exerciseItemName {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.exerciseItemMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  align-items: center;
+}
+
+.muscleBadge {
+  display: inline-block;
+  padding: 0.15rem 0.55rem;
+  border-radius: 9999px;
+  background-color: rgba(255, 42, 117, 0.15);
+  color: var(--primary-color);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: capitalize;
+  letter-spacing: 0.3px;
+}
+
+.tagPill {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 9999px;
+  background-color: var(--surface-light);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.noResults {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  padding: 1.5rem;
+}
+
+/* Info button — shared across contexts */
+.infoBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+
+.infoBtn:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  background-color: rgba(255, 42, 117, 0.08);
+}
+
+/* Small info icon used inline next to exercise names */
+.infoIconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color 0.15s;
+  padding: 0;
+}
+
+.infoIconBtn:hover {
+  color: var(--primary-color);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   CUSTOM EXERCISE CREATION FORM
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.addCustomCard {
+  margin-top: 0.75rem;
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.addCustomCard:hover {
+  border-color: var(--primary-color);
+}
+
+.addCustomToggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.85rem 1rem;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: color 0.15s;
+  text-align: left;
+}
+
+.addCustomToggle:hover {
+  color: var(--primary-color);
+}
+
+.customForm {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  border-top: 1px solid var(--border-color);
+  background-color: var(--surface-color);
+}
+
+.customFormInput,
+.customFormSelect,
+.customFormTextarea {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background-color: var(--surface-light);
+  color: var(--text-main);
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.customFormInput:focus,
+.customFormSelect:focus,
+.customFormTextarea:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(255, 42, 117, 0.12);
+}
+
+.customFormTextarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   EXERCISE INFO GUIDE MODAL
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.infoModal {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  backdrop-filter: blur(6px);
+}
+
+.infoPanel {
+  background: var(--surface-light);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  max-width: 500px;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+
+.infoPanelHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  gap: 0.75rem;
+}
+
+.infoPanelTitle {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0 0 0.35rem 0;
+}
+
+.infoMediaPlaceholder {
+  width: 100%;
+  height: 160px;
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-bottom: 1.25rem;
+}
+
+.infoMediaImage {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  margin-bottom: 1.25rem;
+}
+
+.infoSection {
+  margin-bottom: 1.25rem;
+}
+
+.infoSectionTitle {
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-muted);
+  margin: 0 0 0.65rem 0;
+}
+
+.infoStep {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  margin-bottom: 0.6rem;
+  font-size: 0.88rem;
+  color: var(--text-main);
+  line-height: 1.5;
+}
+
+.infoStepNum {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background-color: rgba(255, 42, 117, 0.15);
+  color: var(--primary-color);
+  font-size: 0.75rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+}
+
+.hintItem {
+  padding: 0.55rem 0.85rem;
+  border-left: 3px solid #f59e0b;
+  background-color: rgba(245, 158, 11, 0.07);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-size: 0.87rem;
+  color: var(--text-main);
+  line-height: 1.5;
+  margin-bottom: 0.45rem;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   REST DAY LOGGER
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.logRestDayBtn {
+  width: 100%;
+  padding: 0.85rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.logRestDayBtn:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  background-color: rgba(255, 42, 117, 0.05);
+}
+
+.restDaySheet {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 1500;
+  display: flex;
+  align-items: flex-end;
+  backdrop-filter: blur(4px);
+}
+
+.restDayPanel {
+  background: var(--surface-light);
+  border-radius: 1.5rem 1.5rem 0 0;
+  padding: 1.5rem 1.5rem 2.5rem;
+  width: 100%;
+  border-top: 1px solid var(--border-color);
+  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.restDayTextarea {
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background-color: var(--surface-color);
+  color: var(--text-main);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.15s;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.restDayTextarea:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(255, 42, 117, 0.12);
+}
+
+.savedBanner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding: 0.85rem;
+  border-radius: var(--radius-md);
+  background-color: rgba(34, 197, 94, 0.12);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  color: #22c55e;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   PER-EXERCISE NOTES & SESSION NOTES
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.exerciseNoteRow {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.noteToggleBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 9999px;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  align-self: flex-start;
+}
+
+.noteToggleBtn:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  background-color: rgba(255, 42, 117, 0.06);
+}
+
+.exerciseNoteTextarea {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background-color: var(--surface-color);
+  color: var(--text-main);
+  font-size: 0.88rem;
+  line-height: 1.5;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.15s;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.exerciseNoteTextarea:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(255, 42, 117, 0.1);
+}
+
+.sessionNotesContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.sessionNotesTextarea {
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background-color: var(--surface-color);
+  color: var(--text-main);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.15s;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.sessionNotesTextarea:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(255, 42, 117, 0.12);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   EXERCISE HEADER ROWS (info icon next to name)
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.exerciseNameRow {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.previewNameRow {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}

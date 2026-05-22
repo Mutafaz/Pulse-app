@@ -1,0 +1,1024 @@
+.container {
+  padding: 1.5rem;
+  padding-bottom: 6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-height: 100vh;
+}
+
+.header {
+  margin-bottom: 0.5rem;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.subtitle {
+  color: var(--text-muted);
+  font-size: 1rem;
+  margin-top: 0.25rem;
+}
+
+/* --- Stats Row --- */
+.statsRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+.statCard {
+  background-color: var(--surface-light);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.statIcon {
+  color: var(--primary-color);
+  margin-bottom: 0.25rem;
+}
+
+.statValue {
+  font-size: 1.25rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.statLabel {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* --- Calendar Card --- */
+.calendarCard {
+  background-color: var(--surface-light);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+}
+
+.calendarNav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.monthTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.navBtn {
+  padding: 0.5rem;
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  transition: background 0.2s;
+}
+
+.navBtn:hover {
+  background-color: var(--surface-color);
+  color: var(--text-main);
+}
+
+.calendarGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.dayHeader {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  padding-bottom: 0.5rem;
+}
+
+.dayCell {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+  gap: 2px;
+}
+
+.dayCell:hover {
+  background-color: var(--surface-color);
+}
+
+.dayNumber {
+  font-weight: 500;
+}
+
+.dayCell.hasWorkout {
+  background-color: var(--primary-dim);
+  font-weight: 700;
+}
+
+.dayCell.hasWorkout .dayNumber {
+  color: var(--primary-color);
+}
+
+.dayCell.today {
+  outline: 2px solid var(--primary-color);
+  outline-offset: -2px;
+}
+
+.dayCell.selected {
+  background-color: var(--primary-color);
+}
+
+.dayCell.selected .dayNumber {
+  color: white;
+}
+
+.dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: var(--primary-color);
+}
+
+.dayCell.selected .dot {
+  background-color: white;
+}
+
+/* --- Day Detail Panel --- */
+.dayDetails {
+  background-color: var(--surface-light);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  animation: slideUp 0.25s ease-out;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dayDetailsTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.noWorkout {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.historyCard {
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.historyCard:last-child {
+  margin-bottom: 0;
+}
+
+.historyName {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.historyStats {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.historyStats span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Legacy support for old routes that redirect */
+.btnPrimary {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  font-size: 1.1rem;
+  font-weight: 750;
+  border: none;
+  width: 100%;
+  cursor: pointer;
+}
+
+/* --- Glassmorphic Tabs Slider Toggle --- */
+.tabsSlider {
+  display: flex;
+  background-color: var(--surface-light);
+  border: 1px solid var(--border-color);
+  padding: 4px;
+  border-radius: var(--radius-lg);
+  gap: 4px;
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+
+.tabBtn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 750;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: center;
+}
+
+.tabBtn:hover:not(.activeTab) {
+  color: var(--text-main);
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+.activeTab {
+  background-color: var(--surface-color);
+  color: white;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.tabContentPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- Tab B: Weight Tracker Panel --- */
+.metricsBar {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.2fr;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+@media (max-width: 600px) {
+  .metricsBar {
+    grid-template-columns: 1fr;
+  }
+}
+
+.metricCard {
+  background-color: var(--surface-light);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.metricCardIcon {
+  color: var(--primary-color);
+  opacity: 0.8;
+  flex-shrink: 0;
+}
+
+.metricText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.metricValue {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.metricLabel {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+/* Gain/Loss Color indicators for progress delta */
+.gainLossCardLoss {
+  border-color: rgba(0, 230, 118, 0.3);
+  background-color: rgba(0, 230, 118, 0.04);
+}
+
+.gainLossCardLoss .metricCardIcon,
+.gainLossCardLoss .metricValue {
+  color: #00e676;
+}
+
+.gainLossCardGain {
+  border-color: rgba(255, 42, 117, 0.3);
+  background-color: rgba(255, 42, 117, 0.04);
+}
+
+.gainLossCardGain .metricCardIcon,
+.gainLossCardGain .metricValue {
+  color: var(--primary-color);
+}
+
+/* --- Custom SVG Progression Chart Card --- */
+.chartCard {
+  background-color: var(--surface-light);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  position: relative;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cardTitle {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.unitBadge {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--primary-color);
+  background-color: rgba(255, 42, 117, 0.1);
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 42, 117, 0.2);
+}
+
+.svgWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.progressionSvg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.gridline {
+  stroke: rgba(255, 255, 255, 0.04);
+  stroke-width: 1;
+  stroke-dasharray: 4, 4;
+}
+
+.gridLabel {
+  fill: var(--text-muted);
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.chartCurveLine {
+  fill: none;
+  stroke: var(--primary-color);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 4px rgba(255, 42, 117, 0.6));
+}
+
+.chartNodeCircle {
+  fill: var(--surface-color);
+  stroke: var(--primary-color);
+  stroke-width: 2;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.chartNodeCircle:hover {
+  fill: var(--primary-color);
+  stroke: white;
+  filter: drop-shadow(0 0 6px var(--primary-color));
+}
+
+/* Floating CSS Tooltip Node Overlays */
+.chartTooltip {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  pointer-events: none;
+  z-index: 10;
+  margin-top: -12px;
+  animation: tooltipFade 0.2s ease-out;
+}
+
+@keyframes tooltipFade {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -90%) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -100%) scale(1);
+  }
+}
+
+.tooltipBox {
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  border-radius: var(--radius-sm);
+  padding: 0.35rem 0.6rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.tooltipWeight {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: white;
+}
+
+.tooltipDate {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+/* Baseline empty stats instructions styling */
+.emptyChartInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2.25rem 1rem;
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-md);
+  background-color: var(--surface-color);
+}
+
+.emptyChartIcon {
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.emptyChartText {
+  font-weight: 750;
+  font-size: 0.95rem;
+  margin: 0 0 0.25rem;
+  color: var(--text-main);
+}
+
+.emptyChartSubText {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  max-width: 280px;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* --- Quick weight input submission logger --- */
+.loggerCard {
+  background-color: var(--surface-light);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.logWeightForm {
+  display: flex;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+@media (max-width: 480px) {
+  .logWeightForm {
+    flex-direction: column;
+  }
+}
+
+.weightInputGroup {
+  display: flex;
+  align-items: center;
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  flex: 1;
+  padding: 0 0.85rem;
+  transition: all 0.2s ease;
+}
+
+.weightInputGroup:focus-within {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 8px rgba(255, 42, 117, 0.2);
+}
+
+.weightInput {
+  background: transparent;
+  border: none;
+  color: white;
+  width: 100%;
+  padding: 0.75rem 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  outline: none;
+}
+
+/* Hide Spin arrows inside numeric weight fields */
+.weightInput::-webkit-outer-spin-button,
+.weightInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.weightSuffix {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.logWeightBtn {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 0 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 750;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 10px rgba(255, 42, 117, 0.3);
+  height: 48px;
+}
+
+.logWeightBtn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(255, 42, 117, 0.45);
+  background-color: #ff3d85;
+}
+
+.logWeightBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* --- Table history scroll block --- */
+.historyLogsCard {
+  background-color: var(--surface-light);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.logsListContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  max-height: 250px;
+  overflow-y: auto;
+  padding-right: 2px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
+}
+
+.logsListContainer::-webkit-scrollbar {
+  width: 4px;
+}
+
+.logsListContainer::-webkit-scrollbar-thumb {
+  background-color: var(--border-color);
+  border-radius: 99px;
+}
+
+.historyLogItem {
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0.85rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.historyLogItem:hover {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.logLeftCol {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.calendarIcon {
+  color: var(--text-muted);
+}
+
+.logDateStr {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.baselineBadge {
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #00e676;
+  background-color: rgba(0, 230, 118, 0.1);
+  border: 1px solid rgba(0, 230, 118, 0.2);
+  padding: 0.08rem 0.35rem;
+  border-radius: var(--radius-sm);
+  letter-spacing: 0.3px;
+}
+
+.logRightCol {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.logWeightStr {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: white;
+}
+
+.deleteLogBtn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+}
+
+.deleteLogBtn:hover:not(:disabled) {
+  color: #ff4d4d;
+  background-color: rgba(239, 68, 68, 0.08);
+}
+
+.deleteLogBtn:disabled {
+  opacity: 0.2;
+  cursor: not-allowed;
+}
+
+/* --- Streak Counter Card --- */
+.streakCard {
+  background: linear-gradient(135deg, var(--surface-light) 0%, rgba(255,42,117,0.05) 100%);
+  border: 1px solid rgba(255,42,117,0.2);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.streakLeft {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.streakFlame {
+  font-size: 2.5rem;
+  line-height: 1;
+  filter: drop-shadow(0 0 10px rgba(255,120,0,0.6));
+}
+
+.streakInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.streakCount {
+  font-size: 2.25rem;
+  font-weight: 900;
+  color: var(--text-main);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.streakLabel {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+}
+
+.streakBest {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  padding: 0.4rem 0.75rem;
+  background-color: var(--surface-color);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+}
+
+.streakBestLabel {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.streakBestValue {
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: var(--primary-color);
+}
+
+.streakRight {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.streakRatioLabels {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.ratioWorkout {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.ratioRest {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #00e676;
+}
+
+/* --- Calendar Day Popup Modal --- */
+.dayModalOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+
+.dayModal {
+  background-color: var(--surface-light);
+  border: 1px solid var(--border-color);
+  border-radius: 1.5rem 1.5rem 0 0;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+  animation: slideUp 0.3s cubic-bezier(0.4,0,0.2,1);
+  box-shadow: 0 -8px 40px rgba(0,0,0,0.5);
+}
+
+.dayModalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.dayModalTitle {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.dayModalClose {
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dayModalClose:hover {
+  color: var(--text-main);
+  border-color: var(--text-muted);
+}
+
+.dayModalEmpty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+  gap: 0.5rem;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.dayModalEmptyIcon {
+  color: var(--text-muted);
+  opacity: 0.5;
+  margin-bottom: 0.5rem;
+}
+
+.dayModalEmptySub {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+.dayModalCard {
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.dayModalCard:last-child {
+  margin-bottom: 0;
+}
+
+.dayModalRestHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.restDayIcon {
+  color: #00e676;
+}
+
+.restDayLabel {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #00e676;
+}
+
+.dayModalNotes {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin: 0;
+  font-style: italic;
+}
+
+.dayModalWorkoutHeader {
+  margin-bottom: 0.75rem;
+}
+
+.dayModalWorkoutName {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0 0 0.25rem 0;
+}
+
+.dayModalWorkoutNotes {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-style: italic;
+  margin: 0;
+}
+
+.dayModalStats {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.dayModalStat {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.dayModalExerciseList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border-top: 1px solid var(--border-color);
+  padding-top: 0.75rem;
+}
+
+.dayModalExerciseItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.dayModalExNum {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background-color: var(--surface-light);
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.dayModalExInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.dayModalExName {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.dayModalExMeta {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Rest Day indicator on calendar */
+.dayCell.hasRestDay {
+  background-color: rgba(0, 230, 118, 0.08);
+}
+
+.dayCell.hasRestDay .dayNumber {
+  color: #00e676;
+}
+
+.dotRest {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: #00e676;
+}
