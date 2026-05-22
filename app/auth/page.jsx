@@ -35,11 +35,17 @@ export default function AuthPage() {
 
         
         // Check if onboarding is complete
-        const docRef = doc(db, "users", userCredential.user.uid);
-        const docSnap = await getDoc(docRef);
-        if (!docSnap.exists()) {
-          router.push('/onboarding');
-        } else {
+        try {
+          const docRef = doc(db, "users", userCredential.user.uid);
+          const docSnap = await getDoc(docRef);
+          if (!docSnap.exists()) {
+            router.push('/onboarding');
+          } else {
+            router.push('/');
+          }
+        } catch (e) {
+          console.error("Error fetching user doc during login:", e);
+          // Fallback to home page if client is offline or network fails
           router.push('/');
         }
         
@@ -60,12 +66,17 @@ export default function AuthPage() {
       const user = result.user;
       
       // Check if user document already exists
-      const docRef = doc(db, "users", user.uid);
-      const docSnap = await getDoc(docRef);
-      
-      if (!docSnap.exists()) {
-        router.push('/onboarding');
-      } else {
+      try {
+        const docRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(docRef);
+        
+        if (!docSnap.exists()) {
+          router.push('/onboarding');
+        } else {
+          router.push('/');
+        }
+      } catch (e) {
+        console.error("Error fetching user doc during Google sign in:", e);
         router.push('/');
       }
     } catch (err) {
