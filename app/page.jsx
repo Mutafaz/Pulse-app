@@ -819,6 +819,8 @@ export default function TrackerPage() {
             </div>
           </div>
         </div>
+      )}
+
       {/* Tab C: Strength Progression */}
       {activeTab === 'strength' && (
         <div className={styles.tabContentPanel}>
