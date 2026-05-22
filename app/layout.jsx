@@ -8,8 +8,8 @@ export const metadata = {
   description: 'AI-powered workout tracker',
   manifest: '/manifest.json',
   icons: {
-    icon: '/logo.png',
-    apple: '/logo.png',
+    icon: '/tab_logo.png',
+    apple: '/tab_logo.png',
   },
   appleWebApp: {
     capable: true,
@@ -31,7 +31,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <head>
         <link rel="apple-touch-icon" href="/icon-192x192.png" />
-        <link rel="icon" href="/logo.png" />
+        <link rel="icon" href="/tab_logo.png" />
       </head>
       <body>
         <AuthProvider>
