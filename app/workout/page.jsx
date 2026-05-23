@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { collection, getDocs, getDoc, doc, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
@@ -844,7 +845,7 @@ export default function WorkoutPage() {
     const ex = exerciseInfoModal;
     const placeholderImg = getMusclePlaceholderImage(ex.primaryMuscle);
 
-    return (
+    const content = (
       <div className={styles.infoModal} onClick={() => setExerciseInfoModal(null)}>
         <div className={styles.infoPanel} onClick={e => e.stopPropagation()}>
           <div className={styles.infoPanelHeader}>
@@ -909,6 +910,11 @@ export default function WorkoutPage() {
         </div>
       </div>
     );
+
+    if (typeof window !== 'undefined') {
+      return createPortal(content, document.body);
+    }
+    return content;
   };
 
   const renderExerciseSearchSheet = (mode) => {
