@@ -8,6 +8,7 @@ import { useAuth } from '../../lib/AuthContext';
 import { Activity, Dumbbell, Calendar, Info, RefreshCw, Zap, ChevronLeft, ChevronRight } from 'lucide-react';
 import styles from './page.module.css';
 import MuscleSelector from '../components/MuscleSelector';
+import { SEED_DATABASE } from '../../lib/exerciseDatabase';
 
 // Removed static SVG paths in favor of the dynamic MuscleSelector component
 
@@ -18,6 +19,8 @@ export default function OverviewPage() {
   const [activeDay, setActiveDay] = useState('all'); // 'all' or specific ISO date string
   const [viewGender, setViewGender] = useState('male'); // 'male' or 'female'
   const [history, setHistory] = useState([]);
+  const [globalExercises, setGlobalExercises] = useState([]);
+  const [customExercises, setCustomExercises] = useState([]);
   const [muscleLoad, setMuscleLoad] = useState({});
   const [historyLoading, setHistoryLoading] = useState(true);
   const [weekOffset, setWeekOffset] = useState(0);
@@ -36,8 +39,31 @@ export default function OverviewPage() {
       router.push('/auth');
     } else {
       fetchHistory();
+      fetchDatabases();
     }
   }, [user, loading, router]);
+
+  const fetchDatabases = async () => {
+    if (!user) return;
+    try {
+      const customSnap = await getDocs(collection(db, "users", user.uid, "custom_exercises"));
+      const custom = [];
+      customSnap.forEach(d => custom.push({ id: d.id, ...d.data() }));
+      setCustomExercises(custom);
+
+      const globalSnap = await getDocs(collection(db, "exercises"));
+      if (globalSnap.empty) {
+        setGlobalExercises(SEED_DATABASE);
+      } else {
+        const globals = [];
+        globalSnap.forEach(d => globals.push({ id: d.id, ...d.data() }));
+        setGlobalExercises(globals);
+      }
+    } catch (err) {
+      console.error("Error loading exercises:", err);
+      setGlobalExercises(SEED_DATABASE);
+    }
+  };
 
   const fetchHistory = async () => {
     if (!user) return;
@@ -147,11 +173,38 @@ export default function OverviewPage() {
 
         if (completedSets === 0) return;
 
-        // Match exercise to muscle groups
-        Object.keys(MUSCLE_MAPPINGS).forEach(muscleKey => {
-          const keywords = MUSCLE_MAPPINGS[muscleKey];
-          const hasKeyword = keywords.some(kw => nameLower.includes(kw));
-          if (hasKeyword) {
+        // Find exercise in DB to use exact tags
+        const cleanName = (ex.name || "").trim().toLowerCase();
+        const combined = [...globalExercises, ...customExercises];
+        const dbEx = combined.find(e => e.name.trim().toLowerCase() === cleanName);
+        
+        let matchedMuscles = [];
+
+        if (dbEx) {
+          if (dbEx.primaryMuscle) matchedMuscles.push(dbEx.primaryMuscle);
+          if (dbEx.tags) {
+            dbEx.tags.forEach(t => {
+              if (Object.keys(loadScore).includes(t)) matchedMuscles.push(t);
+            });
+          }
+        } else {
+          // Fallback to name-based keyword matching if exercise is completely unknown
+          Object.keys(MUSCLE_MAPPINGS).forEach(muscleKey => {
+            const keywords = MUSCLE_MAPPINGS[muscleKey];
+            let hasKeyword = keywords.some(kw => nameLower.includes(kw));
+
+            if (muscleKey === 'biceps' && (nameLower.includes('leg curl') || nameLower.includes('hamstring curl'))) hasKeyword = false;
+            if (muscleKey === 'triceps' && (nameLower.includes('leg extension') || nameLower.includes('back extension'))) hasKeyword = false;
+            if (muscleKey === 'shoulders' && (nameLower.includes('calf raise') || nameLower.includes('leg raise'))) hasKeyword = false;
+            
+            if (hasKeyword) matchedMuscles.push(muscleKey);
+          });
+        }
+
+        matchedMuscles = [...new Set(matchedMuscles)]; // deduplicate
+        
+        matchedMuscles.forEach(muscleKey => {
+          if (loadScore[muscleKey] !== undefined) {
             // Settle score: base impact + additional sets weight + reps volume factor
             loadScore[muscleKey] += 10 + (completedSets * 5) + (totalReps * 1.2);
           }
@@ -167,7 +220,7 @@ export default function OverviewPage() {
     });
 
     setMuscleLoad(normalized);
-  }, [activeDay, history, timelineDays, MUSCLE_MAPPINGS]);
+  }, [activeDay, history, timelineDays, MUSCLE_MAPPINGS, globalExercises, customExercises]);
 
   // UI status labels
   const getHeaderDateLabel = () => {

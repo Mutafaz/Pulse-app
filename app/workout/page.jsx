@@ -1151,7 +1151,6 @@ export default function WorkoutPage() {
   if (previewSplit && editedSplit) {
     return (
       <div className={styles.container}>
-        {renderExerciseInfoModal()}
         {renderAIReviewModal()}
 
         <div className={styles.modal}>
@@ -1350,7 +1349,6 @@ export default function WorkoutPage() {
       <div className={styles.container}>
         {renderExerciseSearchSheet('session')}
         {renderRestDaySheet()}
-        {renderExerciseInfoModal()}
         {renderAIReviewModal()}
 
         <header className={styles.header}>
@@ -1479,7 +1477,6 @@ export default function WorkoutPage() {
   // ════════════════════════════════════════════════════════════════════════════
   return (
     <div className={styles.container}>
-      {renderExerciseInfoModal()}
       {renderExerciseSearchSheet('session')}
 
       {/* Sticky header */}
@@ -1673,6 +1670,9 @@ export default function WorkoutPage() {
       <button className={`${styles.btnPrimary} ${styles.finishBtn}`} onClick={finishWorkout}>
         Finish Workout
       </button>
+
+      {/* Render Info Modal exactly once at the root to avoid CSS transform positioning bugs */}
+      {renderExerciseInfoModal()}
     </div>
   );
 }
