@@ -41,7 +41,9 @@ export default function WorkoutPage() {
 
   // Timers
   const [globalSeconds, setGlobalSeconds] = useState(0);
+  const [sessionStartTime, setSessionStartTime] = useState(null);
   const [restSeconds, setRestSeconds] = useState(0);
+  const [restEndTime, setRestEndTime] = useState(null);
   const [isResting, setIsResting] = useState(false);
   const [restingExerciseId, setRestingExerciseId] = useState(null);
   const [totalRestSeconds, setTotalRestSeconds] = useState(180);
@@ -158,37 +160,33 @@ export default function WorkoutPage() {
 
   // Global timer
   useEffect(() => {
-    if (!activeSession) return;
+    if (!activeSession || !sessionStartTime) return;
     const interval = setInterval(() => {
-      setGlobalSeconds(prev => prev + 1);
+      setGlobalSeconds(Math.floor((Date.now() - sessionStartTime) / 1000));
     }, 1000);
     return () => clearInterval(interval);
-  }, [activeSession]);
+  }, [activeSession, sessionStartTime]);
 
   // Rest timer (countdown)
   useEffect(() => {
-    if (!activeSession || !isResting) {
+    if (!activeSession || !isResting || !restEndTime) {
       setRestingExerciseId(null);
       return;
     }
-    if (restSeconds <= 0) {
-      setIsResting(false);
-      setRestingExerciseId(null);
-      return;
-    }
-    const interval = setInterval(() => {
-      setRestSeconds(prev => {
-        if (prev <= 1) {
-          setIsResting(false);
-          setRestingExerciseId(null);
-          clearInterval(interval);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
+    
+    const checkRestTimer = () => {
+      const remaining = Math.max(0, Math.floor((restEndTime - Date.now()) / 1000));
+      setRestSeconds(remaining);
+      if (remaining <= 0) {
+        setIsResting(false);
+        setRestingExerciseId(null);
+      }
+    };
+    
+    checkRestTimer();
+    const interval = setInterval(checkRestTimer, 1000);
     return () => clearInterval(interval);
-  }, [activeSession, isResting, restSeconds]);
+  }, [activeSession, isResting, restEndTime]);
 
   const formatTime = (totalSeconds) => {
     const h = Math.floor(totalSeconds / 3600);
@@ -238,8 +236,10 @@ export default function WorkoutPage() {
 
   /** Find an exercise object by name from combined DB */
   const findExerciseByName = (name) => {
+    if (!name) return null;
+    const cleanName = name.trim().toLowerCase();
     const combined = [...globalExercises, ...customExercises];
-    return combined.find(ex => ex.name.toLowerCase() === name.toLowerCase()) || null;
+    return combined.find(ex => ex.name.trim().toLowerCase() === cleanName) || null;
   };
 
   // ── FOLDER LOGIC ──────────────────────────────────────────────────────────
@@ -511,7 +511,9 @@ export default function WorkoutPage() {
     setPreviewSplit(null);
     setEditedSplit(null);
     setIsEditingSplitName(false);
+    setSessionStartTime(Date.now());
     setGlobalSeconds(0);
+    setRestEndTime(null);
     setRestSeconds(0);
     setIsResting(false);
     setSessionNotes('');
@@ -521,7 +523,9 @@ export default function WorkoutPage() {
 
   const startEmptyWorkout = () => {
     setActiveSession({ name: "Custom Workout", exercises: [] });
+    setSessionStartTime(Date.now());
     setGlobalSeconds(0);
+    setRestEndTime(null);
     setRestSeconds(0);
     setIsResting(false);
     setSessionNotes('');
@@ -704,6 +708,7 @@ export default function WorkoutPage() {
           const nowCompleted = !s.completed;
           if (nowCompleted) {
             const seconds = parseRestTimeToSeconds(ex.restTime);
+            setRestEndTime(Date.now() + seconds * 1000);
             setRestSeconds(seconds);
             setTotalRestSeconds(seconds);
             setIsResting(true);
@@ -1528,8 +1533,11 @@ export default function WorkoutPage() {
                 className={styles.infoIconBtn}
                 title="Exercise guide"
                 onClick={() => {
-                  const found = findExerciseByName(ex.name);
-                  if (found) setExerciseInfoModal(found);
+                  let found = findExerciseByName(ex.name);
+                  if (!found) {
+                    found = { name: ex.name, primaryMuscle: 'general', instructions: ["No standard instructions found for this exercise."], hints: [] };
+                  }
+                  setExerciseInfoModal(found);
                 }}
               >
                 <HelpCircle size={15} />
