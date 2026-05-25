@@ -90,6 +90,8 @@ export default function WorkoutPage() {
   // Session-level notes
   const [sessionNotes, setSessionNotes] = useState('');
   const [showSessionNotes, setShowSessionNotes] = useState(false);
+  const [exerciseSearchMode, setExerciseSearchMode] = useState('session'); // 'session' or 'edit'
+  const [draggedExerciseIndex, setDraggedExerciseIndex] = useState(null);
   // ─────────────────────────────────────────────────────────────────────────
 
   useEffect(() => {
@@ -188,6 +190,45 @@ export default function WorkoutPage() {
     const interval = setInterval(checkRestTimer, 1000);
     return () => clearInterval(interval);
   }, [activeSession, isResting, restEndTime]);
+
+  // Auto-Load Active Session
+  useEffect(() => {
+    if (!user) return;
+    const draftJson = localStorage.getItem(`workoutDraft_${user.uid}`);
+    if (draftJson) {
+      try {
+        const draft = JSON.parse(draftJson);
+        if (draft.activeSession) {
+          setActiveSession(draft.activeSession);
+          setSessionStartTime(draft.sessionStartTime);
+          setIsResting(draft.isResting || false);
+          setRestEndTime(draft.restEndTime || null);
+          setRestingExerciseId(draft.restingExerciseId || null);
+          setSessionNotes(draft.sessionNotes || '');
+        }
+      } catch (e) {
+        console.error("Failed to parse workout draft", e);
+      }
+    }
+  }, [user]);
+
+  // Auto-Save Active Session
+  useEffect(() => {
+    if (!user) return;
+    if (activeSession) {
+      const draft = {
+        activeSession,
+        sessionStartTime,
+        isResting,
+        restEndTime,
+        restingExerciseId,
+        sessionNotes,
+      };
+      localStorage.setItem(`workoutDraft_${user.uid}`, JSON.stringify(draft));
+    } else {
+      localStorage.removeItem(`workoutDraft_${user.uid}`);
+    }
+  }, [activeSession, sessionStartTime, isResting, restEndTime, restingExerciseId, sessionNotes, user]);
 
   const formatTime = (totalSeconds) => {
     const h = Math.floor(totalSeconds / 3600);
@@ -535,35 +576,50 @@ export default function WorkoutPage() {
   };
 
   // ── EXERCISE SEARCH SHEET ─────────────────────────────────────────────────
-
-  /** Called when user taps an exercise in the search sheet during an ACTIVE session */
-  const addExerciseFromSearch = (exercise) => {
-    setActiveSession(prev => ({
-      ...prev,
-      exercises: [
-        ...prev.exercises,
-        {
-          id: Math.random().toString(36).substr(2, 9),
-          name: exercise.name,
-          sets: [
-            { type: 'normal', lbs: '', reps: '', completed: false },
-            { type: 'normal', lbs: '', reps: '', completed: false }
-          ],
-          restTime: '180s',
-          note: ''
-        }
-      ]
-    }));
-    setShowExerciseSearch(false);
-    setExerciseSearchQuery('');
-    setSelectedMuscleFilter('All');
-  };
-
-  const openExerciseSearch = () => {
+  const openExerciseSearch = (mode = 'session') => {
+    setExerciseSearchMode(mode);
     setExerciseSearchQuery('');
     setSelectedMuscleFilter('All');
     setShowAddCustomForm(false);
     setShowExerciseSearch(true);
+  };
+
+  /** Called when user taps an exercise in the search sheet during an ACTIVE session */
+  const addExerciseFromSearch = (exercise) => {
+    if (exerciseSearchMode === 'edit') {
+      setEditedSplit(prev => ({
+        ...prev,
+        exercises: [
+          ...(prev.exercises || []),
+          {
+            name: exercise.name,
+            sets: 3,
+            reps: "10",
+            restTime: "120s"
+          }
+        ]
+      }));
+    } else {
+      setActiveSession(prev => ({
+        ...prev,
+        exercises: [
+          ...prev.exercises,
+          {
+            id: Math.random().toString(36).substr(2, 9),
+            name: exercise.name,
+            sets: [
+              { type: 'normal', lbs: '', reps: '', completed: false },
+              { type: 'normal', lbs: '', reps: '', completed: false }
+            ],
+            restTime: '180s',
+            note: ''
+          }
+        ]
+      }));
+    }
+    setShowExerciseSearch(false);
+    setExerciseSearchQuery('');
+    setSelectedMuscleFilter('All');
   };
 
   // ── CUSTOM EXERCISE CREATION ──────────────────────────────────────────────
@@ -781,6 +837,7 @@ export default function WorkoutPage() {
       setRestSeconds(0);
       setSessionNotes('');
       setShowSessionNotes(false);
+      localStorage.removeItem(`workoutDraft_${user.uid}`);
     } catch (err) {
       console.error(err);
       alert("Failed to save workout.");
@@ -1210,7 +1267,33 @@ export default function WorkoutPage() {
           {/* Exercise List */}
           <div className={styles.previewList}>
             {(editedSplit.exercises || []).map((ex, i) => (
-              <div key={i} className={isEditingSplit ? styles.previewItemEdit : styles.previewItem}>
+              <div 
+                key={i} 
+                className={isEditingSplit ? styles.previewItemEdit : styles.previewItem}
+                draggable={isEditingSplit}
+                onDragStart={(e) => {
+                  setDraggedExerciseIndex(i);
+                  e.dataTransfer.effectAllowed = 'move';
+                }}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  e.dataTransfer.dropEffect = 'move';
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  if (draggedExerciseIndex === null || draggedExerciseIndex === i) return;
+                  const newExercises = [...editedSplit.exercises];
+                  const [movedExercise] = newExercises.splice(draggedExerciseIndex, 1);
+                  newExercises.splice(i, 0, movedExercise);
+                  setEditedSplit({ ...editedSplit, exercises: newExercises });
+                  setDraggedExerciseIndex(null);
+                }}
+                onDragEnd={() => setDraggedExerciseIndex(null)}
+                style={{ 
+                  cursor: isEditingSplit ? 'grab' : 'default', 
+                  opacity: draggedExerciseIndex === i ? 0.5 : 1 
+                }}
+              >
                 <div className={styles.previewItemHeader}>
                   <span className={styles.previewNum}>{i + 1}</span>
                   {isEditingSplit ? (
@@ -1311,6 +1394,22 @@ export default function WorkoutPage() {
                 )}
               </div>
             ))}
+
+            {isEditingSplit && (
+              <button 
+                className={styles.btnSecondary} 
+                onClick={() => {
+                  setExerciseSearchMode('edit');
+                  setExerciseSearchQuery('');
+                  setSelectedMuscleFilter('All');
+                  setShowAddCustomForm(false);
+                  setShowExerciseSearch(true);
+                }}
+                style={{ marginTop: '1rem', width: '100%' }}
+              >
+                <Plus size={20} /> Add Exercise to Template
+              </button>
+            )}
           </div>
 
           {/* Footer Actions */}
@@ -1669,9 +1768,28 @@ export default function WorkoutPage() {
         </div>
       ))}
 
-      <button className={styles.btnSecondary} onClick={openExerciseSearch}>
-        <Plus size={20} /> Add Exercise
-      </button>
+      <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+        <button className={styles.btnSecondary} onClick={openExerciseSearch} style={{ flex: 1 }}>
+          <Plus size={20} /> Add Exercise
+        </button>
+        <button 
+          className={styles.btnDanger} 
+          onClick={() => {
+            if (window.confirm("Are you sure you want to cancel this workout? All progress will be lost.")) {
+              setActiveSession(null);
+              setSessionStartTime(null);
+              setIsResting(false);
+              setRestEndTime(null);
+              setRestingExerciseId(null);
+              setSessionNotes('');
+              localStorage.removeItem(`workoutDraft_${user.uid}`);
+            }
+          }} 
+          style={{ flex: 1, backgroundColor: 'transparent', border: '1px solid var(--danger-color)', color: 'var(--danger-color)', borderRadius: 'var(--radius-md)' }}
+        >
+          Cancel Workout
+        </button>
+      </div>
 
       <button className={`${styles.btnPrimary} ${styles.finishBtn}`} onClick={finishWorkout}>
         Finish Workout

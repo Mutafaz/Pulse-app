@@ -406,7 +406,7 @@ export default function OverviewPage() {
         ) : (
           <div className={styles.muscleScoresGrid}>
             {Object.keys(muscleLoad).map((muscleKey) => {
-              const score = muscleLoad[muscleKey] || 0;
+              const score = Math.round(muscleLoad[muscleKey] || 0);
               if (score === 0) return null;
 
               const formattedName = muscleKey.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase());
