@@ -8,9 +8,19 @@ import { db } from '../../lib/firebase';
 import { useAuth } from '../../lib/AuthContext';
 import {
   Play, Plus, Check, Timer, X, FolderOpen, ChevronDown, ChevronRight, ChevronLeft,
-  Edit3, Trash2, Search, HelpCircle, Dumbbell, MessageSquare
+  Edit3, Trash2, Search, HelpCircle, Dumbbell, MessageSquare, RefreshCw
 } from 'lucide-react';
 import styles from './page.module.css';
+
+import { polyfill } from "mobile-drag-drop";
+import { scrollBehaviourDragImageTranslateOverride } from "mobile-drag-drop/scroll-behaviour";
+import "mobile-drag-drop/default.css";
+
+if (typeof window !== "undefined") {
+  polyfill({
+    dragImageTranslateOverride: scrollBehaviourDragImageTranslateOverride
+  });
+}
 import {
   SEED_DATABASE,
   MUSCLE_GROUPS,
@@ -90,8 +100,9 @@ export default function WorkoutPage() {
   // Session-level notes
   const [sessionNotes, setSessionNotes] = useState('');
   const [showSessionNotes, setShowSessionNotes] = useState(false);
-  const [exerciseSearchContext, setExerciseSearchContext] = useState('session'); // 'session' or 'edit'
+  const [exerciseSearchContext, setExerciseSearchContext] = useState('session'); // 'session', 'edit', or 'swap'
   const [draggedExerciseIndex, setDraggedExerciseIndex] = useState(null);
+  const [exerciseSwapIndex, setExerciseSwapIndex] = useState(null);
   // ─────────────────────────────────────────────────────────────────────────
 
   useEffect(() => {
@@ -586,7 +597,17 @@ export default function WorkoutPage() {
 
   /** Called when user taps an exercise in the search sheet during an ACTIVE session */
   const addExerciseFromSearch = (exercise) => {
-    if (exerciseSearchContext === 'edit') {
+    if (exerciseSearchContext === 'swap') {
+      const newExercises = [...(editedSplit.exercises || [])];
+      if (exerciseSwapIndex !== null && exerciseSwapIndex < newExercises.length) {
+        newExercises[exerciseSwapIndex] = {
+          ...newExercises[exerciseSwapIndex],
+          name: exercise.name
+        };
+        setEditedSplit({ ...editedSplit, exercises: newExercises });
+      }
+      setExerciseSwapIndex(null);
+    } else if (exerciseSearchContext === 'edit') {
       setEditedSplit(prev => ({
         ...prev,
         exercises: [
@@ -1297,7 +1318,23 @@ export default function WorkoutPage() {
                 <div className={styles.previewItemHeader}>
                   <span className={styles.previewNum}>{i + 1}</span>
                   {isEditingSplit ? (
-                    <span className={styles.previewName}>{ex.name}</span>
+                    <div className={styles.previewNameRow} style={{ flex: 1, justifyContent: 'space-between' }}>
+                      <span className={styles.previewName}>{ex.name}</span>
+                      <button
+                        className={styles.infoIconBtn}
+                        title="Swap Exercise"
+                        onClick={() => {
+                          setExerciseSwapIndex(i);
+                          setExerciseSearchContext('swap');
+                          setExerciseSearchQuery('');
+                          setSelectedMuscleFilter('All');
+                          setShowAddCustomForm(false);
+                          setShowExerciseSearch(true);
+                        }}
+                      >
+                        <RefreshCw size={15} />
+                      </button>
+                    </div>
                   ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', flex: 1 }}>
                       <div className={styles.previewNameRow}>
