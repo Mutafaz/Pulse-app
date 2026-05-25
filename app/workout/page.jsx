@@ -1001,7 +1001,7 @@ export default function WorkoutPage() {
     const results = searchExercises(exerciseSearchQuery, selectedMuscleFilter, globalExercises, customExercises);
     const muscleOptions = MUSCLE_GROUPS;
 
-    return (
+    const content = (
       <div className={styles.searchSheet} onClick={() => setShowExerciseSearch(false)}>
         <div className={styles.searchPanel} onClick={e => e.stopPropagation()}>
           {/* Header */}
@@ -1192,6 +1192,11 @@ export default function WorkoutPage() {
         </div>
       </div>
     );
+
+    if (typeof window !== 'undefined') {
+      return createPortal(content, document.body);
+    }
+    return content;
   };
 
   const renderRestDaySheet = () => {
