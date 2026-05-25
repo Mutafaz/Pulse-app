@@ -90,7 +90,7 @@ export default function WorkoutPage() {
   // Session-level notes
   const [sessionNotes, setSessionNotes] = useState('');
   const [showSessionNotes, setShowSessionNotes] = useState(false);
-  const [exerciseSearchMode, setExerciseSearchMode] = useState('session'); // 'session' or 'edit'
+  const [exerciseSearchContext, setExerciseSearchContext] = useState('session'); // 'session' or 'edit'
   const [draggedExerciseIndex, setDraggedExerciseIndex] = useState(null);
   // ─────────────────────────────────────────────────────────────────────────
 
@@ -576,8 +576,8 @@ export default function WorkoutPage() {
   };
 
   // ── EXERCISE SEARCH SHEET ─────────────────────────────────────────────────
-  const openExerciseSearch = (mode = 'session') => {
-    setExerciseSearchMode(mode);
+  const openExerciseSearch = (context = 'session') => {
+    setExerciseSearchContext(context);
     setExerciseSearchQuery('');
     setSelectedMuscleFilter('All');
     setShowAddCustomForm(false);
@@ -586,7 +586,7 @@ export default function WorkoutPage() {
 
   /** Called when user taps an exercise in the search sheet during an ACTIVE session */
   const addExerciseFromSearch = (exercise) => {
-    if (exerciseSearchMode === 'edit') {
+    if (exerciseSearchContext === 'edit') {
       setEditedSplit(prev => ({
         ...prev,
         exercises: [
@@ -1399,7 +1399,7 @@ export default function WorkoutPage() {
               <button 
                 className={styles.btnSecondary} 
                 onClick={() => {
-                  setExerciseSearchMode('edit');
+                  setExerciseSearchContext('edit');
                   setExerciseSearchQuery('');
                   setSelectedMuscleFilter('All');
                   setShowAddCustomForm(false);

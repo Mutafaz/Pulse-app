@@ -3,8 +3,9 @@ const { getFirestore, collection, getDocs, updateDoc, doc } = require('firebase/
 const { GoogleGenAI } = require('@google/genai');
 const dotenv = require('dotenv');
 const fs = require('fs');
+const path = require('path');
 
-dotenv.config({ path: '../.env.local' });
+dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
 
 // Initialize Firebase (Using your existing client config)
 // REPLACE these with your actual Firebase config if not loaded via env
