@@ -1235,6 +1235,7 @@ export default function WorkoutPage() {
   if (previewSplit && editedSplit) {
     return (
       <div className={styles.container}>
+        {renderExerciseSearchSheet('session')}
         {renderAIReviewModal()}
 
         <div className={styles.modal}>
