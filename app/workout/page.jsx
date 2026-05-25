@@ -8,7 +8,7 @@ import { db } from '../../lib/firebase';
 import { useAuth } from '../../lib/AuthContext';
 import {
   Play, Plus, Check, Timer, X, FolderOpen, ChevronDown, ChevronRight, ChevronLeft,
-  Edit3, Trash2, Search, HelpCircle, Dumbbell, MessageSquare, RefreshCw
+  Edit3, Trash2, Search, HelpCircle, Dumbbell, MessageSquare, RefreshCw, Copy
 } from 'lucide-react';
 import styles from './page.module.css';
 
@@ -359,6 +359,27 @@ export default function WorkoutPage() {
     fetchTemplates();
   };
 
+  const duplicateFolder = async (folderName) => {
+    const newFolderName = `${folderName} (Copy)`;
+    const updatedFolders = [...customFolders, newFolderName];
+    setCustomFolders(updatedFolders);
+    await setDoc(doc(db, "users", user.uid, "metadata", "folders"), { list: updatedFolders });
+
+    const toDuplicate = templates.filter(t => t.folderName === folderName);
+    for (const t of toDuplicate) {
+      const newRef = doc(collection(db, "users", user.uid, "templates"));
+      const newTemplateData = {
+        splitName: `${t.splitName || "Workout Split"} (Copy)`,
+        exercises: t.exercises || [],
+        folderName: newFolderName,
+        createdAt: new Date().toISOString()
+      };
+      await setDoc(newRef, newTemplateData);
+    }
+    fetchTemplates();
+    setEditingFolder(null);
+  };
+
   const moveToFolder = async (templateId) => {
     const folderName = window.prompt("Enter folder/program name (or leave empty to remove from folder):");
     if (folderName === null) return;
@@ -454,6 +475,18 @@ export default function WorkoutPage() {
     });
   };
 
+  const duplicateTemplateExercise = (index) => {
+    setEditedSplit(prev => {
+      if (!prev || !prev.exercises) return prev;
+      const exerciseToDuplicate = prev.exercises[index];
+      if (!exerciseToDuplicate) return prev;
+      const newExercise = { ...exerciseToDuplicate };
+      const newExercises = [...prev.exercises];
+      newExercises.splice(index + 1, 0, newExercise);
+      return { ...prev, exercises: newExercises };
+    });
+  };
+
   const handleSetsDropdownChange = (index, val) => {
     setEditedSplit(prev => {
       const updatedEx = prev.exercises.map((ex, i) => {
@@ -513,6 +546,16 @@ export default function WorkoutPage() {
     setIsEditingSplitName(false);
   };
 
+  const deleteTemplateCard = async (templateId) => {
+    if (!window.confirm("Delete this split template?")) return;
+    try {
+      await deleteDoc(doc(db, "users", user.uid, "templates", templateId));
+      fetchTemplates();
+    } catch (err) {
+      console.error("Failed to delete template from Firestore:", err);
+    }
+  };
+
   const deleteTemplateFromModal = async (templateId) => {
     if (!window.confirm("Delete this split template?")) return;
     try {
@@ -524,6 +567,26 @@ export default function WorkoutPage() {
     setPreviewSplit(null);
     setEditedSplit(null);
     setIsEditingSplitName(false);
+  };
+
+  const duplicateFullTemplate = async (template) => {
+    try {
+      const newRef = doc(collection(db, "users", user.uid, "templates"));
+      const newTemplateData = {
+        splitName: `${template.splitName || "Workout Split"} (Copy)`,
+        exercises: template.exercises || [],
+        folderName: template.folderName || null,
+        createdAt: new Date().toISOString()
+      };
+      await setDoc(newRef, newTemplateData);
+      fetchTemplates();
+      // Optional: Close modal, or keep it open? Let's just close it.
+      setPreviewSplit(null);
+      setEditedSplit(null);
+      setIsEditingSplitName(false);
+    } catch (err) {
+      console.error("Failed to duplicate template:", err);
+    }
   };
 
   const startWorkout = async (template) => {
@@ -809,6 +872,28 @@ export default function WorkoutPage() {
     }));
   };
 
+  const duplicateSessionExercise = (exerciseId) => {
+    setActiveSession(prev => {
+      const exerciseToDuplicate = prev.exercises.find(ex => ex.id === exerciseId);
+      if (!exerciseToDuplicate) return prev;
+      
+      const newExercise = {
+        ...exerciseToDuplicate,
+        id: Math.random().toString(36).substr(2, 9),
+        sets: exerciseToDuplicate.sets.map(s => ({ ...s, completed: false }))
+      };
+      
+      const index = prev.exercises.findIndex(ex => ex.id === exerciseId);
+      const newExercises = [...prev.exercises];
+      newExercises.splice(index + 1, 0, newExercise);
+      
+      return {
+        ...prev,
+        exercises: newExercises
+      };
+    });
+  };
+
   const updateExerciseNote = (exerciseId, note) => {
     setActiveSession(prev => ({
       ...prev,
@@ -985,6 +1070,31 @@ export default function WorkoutPage() {
               ))}
             </div>
           )}
+
+          <button
+            className={styles.btnSecondary}
+            style={{ width: '100%', marginTop: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+            onClick={(e) => {
+              e.stopPropagation();
+              setCustomFormData({
+                name: `${ex.name} (Copy)`,
+                primaryMuscle: ex.primaryMuscle || 'chest',
+                instructions: (ex.instructions || []).join('\n'),
+                hints: (ex.hints || []).join('\n')
+              });
+              setExerciseInfoModal(null);
+              setShowExerciseSearch(true);
+              setShowAddCustomForm(true);
+              setTimeout(() => {
+                const sheetEl = document.querySelector(`.${styles.searchPanel}`);
+                if (sheetEl) {
+                  sheetEl.scrollTo({ top: sheetEl.scrollHeight, behavior: 'smooth' });
+                }
+              }, 100);
+            }}
+          >
+            <Copy size={16} /> Copy to Custom Exercise
+          </button>
         </div>
       </div>
     );
@@ -1117,13 +1227,37 @@ export default function WorkoutPage() {
                         ))}
                       </div>
                     </div>
-                    <button
-                      className={styles.infoBtn}
-                      title="Exercise guide"
-                      onClick={e => { e.stopPropagation(); setExerciseInfoModal(ex); }}
-                    >
-                      <HelpCircle size={18} />
-                    </button>
+                    <div style={{ display: 'flex', gap: '0.4rem' }}>
+                      <button
+                        className={styles.infoBtn}
+                        title="Copy to custom exercise"
+                        onClick={e => {
+                          e.stopPropagation();
+                          setCustomFormData({
+                            name: `${ex.name} (Copy)`,
+                            primaryMuscle: ex.primaryMuscle || 'chest',
+                            instructions: (ex.instructions || []).join('\n'),
+                            hints: (ex.hints || []).join('\n')
+                          });
+                          setShowAddCustomForm(true);
+                          setTimeout(() => {
+                            const sheetEl = document.querySelector(`.${styles.searchPanel}`);
+                            if (sheetEl) {
+                              sheetEl.scrollTo({ top: sheetEl.scrollHeight, behavior: 'smooth' });
+                            }
+                          }, 100);
+                        }}
+                      >
+                        <Copy size={16} />
+                      </button>
+                      <button
+                        className={styles.infoBtn}
+                        title="Exercise guide"
+                        onClick={e => { e.stopPropagation(); setExerciseInfoModal(ex); }}
+                      >
+                        <HelpCircle size={18} />
+                      </button>
+                    </div>
                   </div>
                 ))}
 
@@ -1275,9 +1409,14 @@ export default function WorkoutPage() {
             )}
             <div className={styles.modalHeaderButtons}>
               {isEditingSplit && (
-                <button className={styles.modalHeaderDeleteBtn} onClick={() => deleteTemplateFromModal(editedSplit.id)} title="Delete Split">
-                  <Trash2 size={20} />
-                </button>
+                <>
+                  <button className={styles.pencilBtn} onClick={() => duplicateFullTemplate(editedSplit)} title="Duplicate Split" style={{ marginRight: '0.5rem' }}>
+                    <Copy size={18} />
+                  </button>
+                  <button className={styles.modalHeaderDeleteBtn} onClick={() => deleteTemplateFromModal(editedSplit.id)} title="Delete Split">
+                    <Trash2 size={20} />
+                  </button>
+                </>
               )}
               <button className={styles.removeExercise} onClick={() => { setPreviewSplit(null); setEditedSplit(null); setIsEditingSplit(false); setIsEditingSplitName(false); }} title="Close">
                 <X size={24} />
@@ -1326,20 +1465,29 @@ export default function WorkoutPage() {
                   {isEditingSplit ? (
                     <div className={styles.previewNameRow} style={{ flex: 1, justifyContent: 'space-between' }}>
                       <span className={styles.previewName}>{ex.name}</span>
-                      <button
-                        className={styles.infoIconBtn}
-                        title="Swap Exercise"
-                        onClick={() => {
-                          setExerciseSwapIndex(i);
-                          setExerciseSearchContext('swap');
-                          setExerciseSearchQuery('');
-                          setSelectedMuscleFilter('All');
-                          setShowAddCustomForm(false);
-                          setShowExerciseSearch(true);
-                        }}
-                      >
-                        <RefreshCw size={15} />
-                      </button>
+                      <div style={{ display: 'flex', gap: '0.4rem' }}>
+                        <button
+                          className={styles.infoIconBtn}
+                          title="Duplicate Exercise"
+                          onClick={() => duplicateTemplateExercise(i)}
+                        >
+                          <Copy size={13} />
+                        </button>
+                        <button
+                          className={styles.infoIconBtn}
+                          title="Swap Exercise"
+                          onClick={() => {
+                            setExerciseSwapIndex(i);
+                            setExerciseSearchContext('swap');
+                            setExerciseSearchQuery('');
+                            setSelectedMuscleFilter('All');
+                            setShowAddCustomForm(false);
+                            setShowExerciseSearch(true);
+                          }}
+                        >
+                          <RefreshCw size={15} />
+                        </button>
+                      </div>
                     </div>
                   ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', flex: 1 }}>
@@ -1551,12 +1699,23 @@ export default function WorkoutPage() {
                 )}
               </div>
               <div className={styles.folderActions} onClick={e => e.stopPropagation()}>
-                <button className={styles.folderEditBtn} onClick={() => startRenameFolder(folderName)} title="Rename Folder">
-                  <Edit3 size={16} />
-                </button>
-                <button className={styles.folderDeleteBtn} onClick={() => deleteFolder(folderName)} title="Delete Folder">
-                  <Trash2 size={16} />
-                </button>
+                {editingFolder === folderName ? (
+                  <>
+                    <button className={styles.folderEditBtn} onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); duplicateFolder(folderName); }} title="Duplicate Folder" style={{ marginRight: '0.4rem' }}>
+                      <Copy size={16} />
+                    </button>
+                    <button className={styles.folderDeleteBtn} onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); deleteFolder(folderName); }} title="Delete Folder" style={{ marginRight: '0.4rem' }}>
+                      <Trash2 size={16} />
+                    </button>
+                    <button className={styles.folderEditBtn} onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); saveRenameFolder(folderName); }} title="Save Name">
+                      <Check size={16} />
+                    </button>
+                  </>
+                ) : (
+                  <button className={styles.folderEditBtn} onClick={() => startRenameFolder(folderName)} title="Edit Folder">
+                    <Edit3 size={16} />
+                  </button>
+                )}
               </div>
             </div>
 
@@ -1572,12 +1731,31 @@ export default function WorkoutPage() {
                       draggable
                       onDragStart={e => handleDragStart(e, t.id)}
                       onClick={() => confirmStartWorkout(t)}
-                      style={{ cursor: 'pointer' }}
+                      style={{ cursor: 'pointer', position: 'relative' }}
                     >
                       <div className={styles.cardMain}>
                         <h3 className={styles.cardTitle}>{t.splitName || "Workout Split"}</h3>
                         <p className={styles.cardDetails}>{t.exercises?.length || 0} exercises</p>
                       </div>
+                      {editingFolder === folderName && (
+                        <div style={{ position: 'absolute', top: '0.75rem', right: '0.75rem', display: 'flex', gap: '0.5rem' }}>
+                          <button
+                            className={styles.infoIconBtn}
+                            onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); duplicateFullTemplate(t); }}
+                            title="Duplicate Split"
+                          >
+                            <Copy size={16} />
+                          </button>
+                          <button
+                            className={styles.modalHeaderDeleteBtn}
+                            onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); deleteTemplateCard(t.id); }}
+                            title="Delete Split"
+                            style={{ padding: '0.3rem', background: 'rgba(255,59,48,0.1)' }}
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      )}
                     </div>
                   ))
                 )}
@@ -1686,6 +1864,14 @@ export default function WorkoutPage() {
                 }}
               >
                 <HelpCircle size={15} />
+              </button>
+              <button
+                className={styles.infoIconBtn}
+                title="Duplicate Exercise"
+                onClick={() => duplicateSessionExercise(ex.id)}
+                style={{ marginLeft: '0.4rem' }}
+              >
+                <Copy size={13} />
               </button>
             </div>
             <button className={styles.removeExercise} onClick={() => removeExercise(ex.id)}>
