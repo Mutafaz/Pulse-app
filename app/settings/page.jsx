@@ -17,6 +17,11 @@ export default function ProfilePage() {
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [editForm, setEditForm] = useState({});
   const [isSaving, setIsSaving] = useState(false);
+  const [templates, setTemplates] = useState([]);
+  // Schedule state (independent of profile edit)
+  const [isEditingSchedule, setIsEditingSchedule] = useState(false);
+  const [scheduleForm, setScheduleForm] = useState({});
+  const [isSavingSchedule, setIsSavingSchedule] = useState(false);
 
   // Gamification States
   const [stats, setStats] = useState({ level: 1, title: 'Novice', streak: 0, totalVolume: 0 });
@@ -37,6 +42,41 @@ export default function ProfilePage() {
       handleToggleAdmin();
     }
   }, [adminTapCount]);
+
+  // Fetch Workout Templates
+  useEffect(() => {
+    if (!user) return;
+    const fetchTemplates = async () => {
+      try {
+        const snap = await getDocs(collection(db, 'users', user.uid, 'templates'));
+        const loaded = [];
+        snap.forEach(d => loaded.push({ id: d.id, ...d.data() }));
+        setTemplates(loaded);
+      } catch (err) { console.error(err); }
+    };
+    fetchTemplates();
+  }, [user]);
+
+  // Initialize scheduleForm from userData when userData loads
+  useEffect(() => {
+    if (userData?.weekSchedule) {
+      setScheduleForm(userData.weekSchedule);
+    }
+  }, [userData]);
+
+  const saveSchedule = async () => {
+    setIsSavingSchedule(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), { weekSchedule: scheduleForm });
+      setIsEditingSchedule(false);
+      window.location.reload();
+    } catch (err) {
+      console.error('Failed to save schedule:', err);
+      alert('Failed to save schedule. Please try again.');
+    } finally {
+      setIsSavingSchedule(false);
+    }
+  };
 
   // Fetch History & Calculate Stats
   useEffect(() => {
@@ -171,6 +211,7 @@ export default function ProfilePage() {
       weight: userData.weight || '',
       birthday: userData.birthday || '',
       useVisualMap: userData.useVisualMap !== false,
+      weekSchedule: userData.weekSchedule || { mon: '', tue: '', wed: '', thu: '', fri: '', sat: '', sun: '' },
     });
     setIsEditingProfile(true);
   };
@@ -186,6 +227,7 @@ export default function ProfilePage() {
         weight: parseFloat(editForm.weight) || userData.weight,
         birthday: editForm.birthday || userData.birthday || null,
         useVisualMap: editForm.useVisualMap,
+        weekSchedule: editForm.weekSchedule || {},
       });
       window.location.reload();
     } catch (err) {
@@ -216,11 +258,8 @@ export default function ProfilePage() {
       { label: 'Baseline Weight', value: `${userData.weight || 0} lbs`, icon: Scale },
       { label: 'Age', value: `${userData.birthday ? calculateAge(userData.birthday) : (userData.age || 0)} years`, icon: Calendar },
       { label: 'Visual Map', value: userData.useVisualMap !== false ? 'Enabled' : 'Disabled', icon: Database },
-      { label: 'Level', value: `Lvl ${stats.level} (${stats.title})`, icon: Trophy },
-      { label: 'Current Streak', value: `${stats.streak} Days 🔥`, icon: Flame },
-      { label: 'Lifetime Volume', value: `${stats.totalVolume.toLocaleString()} lbs`, icon: Scale },
     ];
-  }, [userData, stats]);
+  }, [userData]);
 
   if (loading || !user || !userData) return null;
 
@@ -469,7 +508,7 @@ export default function ProfilePage() {
           </div>
         )}
 
-        {/* Account Utility Controls */}
+
         <div className={styles.accountActionDivider}></div>
         
         <button className={styles.btnSecondary} onClick={handleLogout}>
@@ -481,6 +520,99 @@ export default function ProfilePage() {
         </button>
 
       </div>
+
+      {/* Weekly Training Schedule Card — always visible below profile */}
+      <div className={styles.card} style={{ marginTop: '1rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Calendar size={18} style={{ color: 'var(--primary-color)' }} />
+            <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: 'var(--text-main)' }}>Training Schedule</h3>
+          </div>
+          {!isEditingSchedule ? (
+            <button className={styles.pencilBtn} onClick={() => setIsEditingSchedule(true)} title="Edit schedule">
+              <Edit3 size={16} />
+            </button>
+          ) : (
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button className={styles.saveBtn} onClick={saveSchedule} disabled={isSavingSchedule}>
+                {isSavingSchedule ? '...' : <Check size={14} />}
+              </button>
+              <button className={styles.cancelBtn} onClick={() => setIsEditingSchedule(false)}>
+                <X size={14} />
+              </button>
+            </div>
+          )}
+        </div>
+
+        {isEditingSchedule ? (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '0.5rem' }}>
+            {['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'].map(day => {
+              const dayLabels = { mon: 'Monday', tue: 'Tuesday', wed: 'Wednesday', thu: 'Thursday', fri: 'Friday', sat: 'Saturday', sun: 'Sunday' };
+              const value = scheduleForm[day] || '';
+              const isToday = ['sun','mon','tue','wed','thu','fri','sat'][new Date().getDay()] === day;
+              return (
+                <div key={day} style={{
+                  background: 'var(--surface-color)',
+                  border: `1px solid ${isToday ? 'rgba(255,42,117,0.4)' : 'var(--border-color)'}`,
+                  borderRadius: '10px',
+                  padding: '0.6rem 0.75rem',
+                }}>
+                  <div style={{ fontSize: '0.72rem', fontWeight: 700, color: isToday ? 'var(--primary-color)' : 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '0.35rem' }}>
+                    {dayLabels[day]}{isToday ? ' · Today' : ''}
+                  </div>
+                  <select
+                    value={value}
+                    onChange={e => setScheduleForm(prev => ({ ...prev, [day]: e.target.value }))}
+                    style={{
+                      width: '100%',
+                      padding: '0.35rem 0.5rem',
+                      borderRadius: '8px',
+                      border: '1px solid var(--border-color)',
+                      background: 'var(--surface-light)',
+                      color: value === 'rest' ? '#34d399' : 'var(--text-main)',
+                      fontSize: '0.8rem',
+                      outline: 'none',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <option value="">— Not set —</option>
+                    <option value="rest">😴 Rest Day</option>
+                    {templates.map(t => (
+                      <option key={t.id} value={t.id}>{t.splitName || 'Workout Split'}</option>
+                    ))}
+                  </select>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '0.4rem' }}>
+            {['mon','tue','wed','thu','fri','sat','sun'].map(day => {
+              const dayShort = { mon:'Mon', tue:'Tue', wed:'Wed', thu:'Thu', fri:'Fri', sat:'Sat', sun:'Sun' };
+              const val = (userData?.weekSchedule || {})[day];
+              const isToday = ['sun','mon','tue','wed','thu','fri','sat'][new Date().getDay()] === day;
+              const template = templates.find(t => t.id === val);
+              return (
+                <div key={day} style={{
+                  background: isToday ? 'rgba(255,42,117,0.08)' : 'var(--surface-color)',
+                  border: `1px solid ${isToday ? 'rgba(255,42,117,0.3)' : 'var(--border-color)'}`,
+                  borderRadius: '8px', padding: '0.5rem 0.35rem', textAlign: 'center'
+                }}>
+                  <div style={{ fontSize: '0.65rem', fontWeight: 700, color: isToday ? 'var(--primary-color)' : 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.3rem' }}>{dayShort[day]}</div>
+                  {val === 'rest' ? (
+                    <div style={{ fontSize: '0.85rem' }}>😴</div>
+                  ) : template ? (
+                    <div style={{ fontSize: '0.65rem', color: 'var(--text-main)', fontWeight: 600, lineHeight: 1.2, wordBreak: 'break-word' }}>{(template.splitName || 'Workout').split(' ').slice(0,2).join(' ')}</div>
+                  ) : (
+                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', opacity: 0.4 }}>—</div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
     </div>
   );
 }

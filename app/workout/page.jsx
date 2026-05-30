@@ -8,7 +8,7 @@ import { db } from '../../lib/firebase';
 import { useAuth } from '../../lib/AuthContext';
 import {
   Play, Plus, Check, Timer, X, FolderOpen, ChevronDown, ChevronRight, ChevronLeft,
-  Edit3, Trash2, Search, HelpCircle, Dumbbell, MessageSquare, RefreshCw, Copy
+  Edit3, Trash2, Search, HelpCircle, Dumbbell, MessageSquare, RefreshCw, Copy, Share2
 } from 'lucide-react';
 import styles from './page.module.css';
 
@@ -97,12 +97,23 @@ export default function WorkoutPage() {
   const [restDayNotes, setRestDayNotes] = useState('');
   const [restDaySaved, setRestDaySaved] = useState(false);
 
+  // Folder Sharing states
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [shareCode, setShareCode] = useState('');
+  const [shareLoading, setShareLoading] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [importCode, setImportCode] = useState('');
+  const [importPreview, setImportPreview] = useState(null);
+  const [importLoading, setImportLoading] = useState(false);
+
   // Session-level notes
   const [sessionNotes, setSessionNotes] = useState('');
   const [showSessionNotes, setShowSessionNotes] = useState(false);
   const [exerciseSearchContext, setExerciseSearchContext] = useState('session'); // 'session', 'edit', or 'swap'
   const [draggedExerciseIndex, setDraggedExerciseIndex] = useState(null);
   const [exerciseSwapIndex, setExerciseSwapIndex] = useState(null);
+  // Previous set performance hints (loaded when workout starts)
+  const [exerciseHistory, setExerciseHistory] = useState({}); // { [exerciseName]: [{lbs, reps}, ...] }
   // ─────────────────────────────────────────────────────────────────────────
 
   useEffect(() => {
@@ -380,6 +391,93 @@ export default function WorkoutPage() {
     setEditingFolder(null);
   };
 
+  const shareFolder = async (folderName) => {
+    setShareLoading(true);
+    try {
+      const folderTemplates = templates.filter(t => t.folderName === folderName);
+      if (folderTemplates.length === 0) {
+        alert("This folder is empty. Add some splits to it before sharing.");
+        return;
+      }
+      const code = 'PULSE-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+      
+      await setDoc(doc(db, 'shared_folders', code), {
+        folderName,
+        templates: folderTemplates.map(t => ({
+          splitName: t.splitName,
+          exercises: t.exercises || [],
+        })),
+        sharedBy: user.uid,
+        sharedByName: userData?.name || 'A Pulse user',
+        createdAt: new Date().toISOString(),
+      });
+      
+      setShareCode(code);
+      setShowShareModal(true);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to share folder. Please check your internet connection and try again.');
+    } finally {
+      setShareLoading(false);
+    }
+  };
+
+  const importFolder = async () => {
+    const cleanCode = importCode.trim().toUpperCase();
+    if (!cleanCode) return;
+    setImportLoading(true);
+    setImportPreview(null);
+    try {
+      const snap = await getDoc(doc(db, 'shared_folders', cleanCode));
+      if (!snap.exists()) {
+        alert('Share code not found. Check and try again.');
+        return;
+      }
+      setImportPreview(snap.data());
+    } catch (err) {
+      console.error(err);
+      alert('Failed to fetch shared folder details.');
+    } finally {
+      setImportLoading(false);
+    }
+  };
+
+  const confirmImport = async () => {
+    if (!importPreview) return;
+    try {
+      const folderName = importPreview.folderName;
+      let finalFolderName = folderName;
+      let counter = 1;
+      while (customFolders.includes(finalFolderName)) {
+        finalFolderName = `${folderName} (${counter})`;
+        counter++;
+      }
+
+      const updatedFolders = [...customFolders, finalFolderName];
+      setCustomFolders(updatedFolders);
+      await setDoc(doc(db, 'users', user.uid, 'metadata', 'folders'), { list: updatedFolders });
+
+      for (const t of importPreview.templates) {
+        const newRef = doc(collection(db, 'users', user.uid, 'templates'));
+        await setDoc(newRef, {
+          splitName: t.splitName,
+          exercises: t.exercises || [],
+          folderName: finalFolderName,
+          createdAt: new Date().toISOString(),
+        });
+      }
+
+      setShowImportModal(false);
+      setImportPreview(null);
+      setImportCode('');
+      fetchTemplates();
+      alert(`Successfully imported "${finalFolderName}" with ${importPreview.templates.length} workout splits!`);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to import the shared folder.');
+    }
+  };
+
   const moveToFolder = async (templateId) => {
     const folderName = window.prompt("Enter folder/program name (or leave empty to remove from folder):");
     if (folderName === null) return;
@@ -623,6 +721,9 @@ export default function WorkoutPage() {
       };
     });
 
+    // Load previous set performance hints
+    loadExerciseHistory((template.exercises || []).map(ex => ex.name));
+
     setActiveSession({ name: template.splitName || "Workout", exercises });
     setPreviewSplit(null);
     setEditedSplit(null);
@@ -635,6 +736,34 @@ export default function WorkoutPage() {
     setSessionNotes('');
     setShowSessionNotes(false);
     restRef.current = false;
+  };
+
+  /** Scans history to find the most recent sets for each given exercise name */
+  const loadExerciseHistory = async (exerciseNames) => {
+    if (!user || !exerciseNames.length) return;
+    try {
+      const snapshot = await getDocs(collection(db, "users", user.uid, "history"));
+      const records = [];
+      snapshot.forEach(d => records.push({ id: d.id, ...d.data() }));
+      records.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+      const historyMap = {};
+      const nameLookup = exerciseNames.map(n => n.trim().toLowerCase());
+
+      for (const record of records) {
+        for (const ex of (record.exercises || [])) {
+          const key = (ex.name || '').trim().toLowerCase();
+          if (nameLookup.includes(key) && !historyMap[key]) {
+            historyMap[key] = (ex.sets || []).map(s => ({ lbs: s.lbs || '', reps: s.reps || '' }));
+          }
+        }
+        // Stop early if all exercises found
+        if (Object.keys(historyMap).length >= nameLookup.length) break;
+      }
+      setExerciseHistory(historyMap);
+    } catch (err) {
+      console.error("Failed to load exercise history:", err);
+    }
   };
 
   const startEmptyWorkout = () => {
@@ -1368,6 +1497,113 @@ export default function WorkoutPage() {
     );
   };
 
+  const renderShareModal = () => {
+    if (!showShareModal) return null;
+    return (
+      <div className={styles.shareSheet} onClick={() => setShowShareModal(false)}>
+        <div className={styles.sharePanel} onClick={e => e.stopPropagation()}>
+          <div className={styles.searchHeader}>
+            <h3 className={styles.shareTitle}>Folder Shared!</h3>
+            <button className={styles.infoBtn} onClick={() => setShowShareModal(false)}>
+              <X size={22} />
+            </button>
+          </div>
+          <p className={styles.shareSubtitle}>
+            Anyone with this code can import this folder and all of its split templates into their own account:
+          </p>
+          <div className={styles.shareCodeBox}>
+            <span>{shareCode}</span>
+            <button
+              className={styles.shareBtnCopy}
+              onClick={() => {
+                navigator.clipboard.writeText(shareCode);
+                alert("Share code copied to clipboard!");
+              }}
+              title="Copy Code"
+            >
+              <Copy size={20} />
+            </button>
+          </div>
+          <button className={styles.btnPrimary} onClick={() => setShowShareModal(false)} style={{ marginTop: '0.5rem' }}>
+            Done
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  const renderImportModal = () => {
+    if (!showImportModal) return null;
+    return (
+      <div className={styles.shareSheet} onClick={() => { setShowImportModal(false); setImportPreview(null); setImportCode(''); }}>
+        <div className={styles.sharePanel} onClick={e => e.stopPropagation()}>
+          <div className={styles.searchHeader}>
+            <h3 className={styles.shareTitle}>Import Folder</h3>
+            <button className={styles.infoBtn} onClick={() => { setShowImportModal(false); setImportPreview(null); setImportCode(''); }}>
+              <X size={22} />
+            </button>
+          </div>
+          
+          {!importPreview ? (
+            <>
+              <p className={styles.shareSubtitle}>
+                Enter a folder share code (e.g. <code>PULSE-XXXXX</code>) to preview and import its workout templates:
+              </p>
+              <input
+                className={styles.importCodeInput}
+                type="text"
+                placeholder="PULSE-XXXXX"
+                value={importCode}
+                onChange={e => setImportCode(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && importFolder()}
+              />
+              <button
+                className={styles.btnPrimary}
+                onClick={importFolder}
+                disabled={importLoading || !importCode.trim()}
+              >
+                {importLoading ? "Fetching Folder..." : "Preview Folder"}
+              </button>
+            </>
+          ) : (
+            <>
+              <p className={styles.shareSubtitle}>
+                Importing <strong>{importPreview.folderName}</strong> shared by <strong>{importPreview.sharedByName}</strong>.
+              </p>
+              
+              <div className={styles.importPreviewArea}>
+                <div className={styles.importPreviewTitle}>Templates to Import ({importPreview.templates?.length || 0}):</div>
+                {importPreview.templates?.map((t, idx) => (
+                  <div key={idx} className={styles.importTemplateItem}>
+                    <span className={styles.importTemplateName}>{t.splitName}</span>
+                    <span className={styles.importTemplateExCount}>{t.exercises?.length || 0} exercises</span>
+                  </div>
+                ))}
+              </div>
+              
+              <div className={styles.importActionRow}>
+                <button
+                  className={styles.btnSecondary}
+                  onClick={() => setImportPreview(null)}
+                  style={{ flex: 1 }}
+                >
+                  Back
+                </button>
+                <button
+                  className={styles.btnPrimary}
+                  onClick={confirmImport}
+                  style={{ flex: 1 }}
+                >
+                  Confirm Import
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   // ════════════════════════════════════════════════════════════════════════════
   // CONFIRMATION MODAL
   // ════════════════════════════════════════════════════════════════════════════
@@ -1645,6 +1881,8 @@ export default function WorkoutPage() {
       <div className={styles.container}>
         {renderExerciseSearchSheet('session')}
         {renderRestDaySheet()}
+        {renderShareModal()}
+        {renderImportModal()}
         {renderAIReviewModal()}
 
         <header className={styles.header}>
@@ -1667,6 +1905,15 @@ export default function WorkoutPage() {
           onClick={() => { setRestDayNotes(''); setRestDaySaved(false); setShowRestDaySheet(true); }}
         >
           Log Rest Day
+        </button>
+
+        {/* Import Folder button */}
+        <button
+          className={styles.logRestDayBtn}
+          onClick={() => { setImportCode(''); setImportPreview(null); setShowImportModal(true); }}
+          style={{ marginTop: '0.5rem', marginBottom: '1.5rem' }}
+        >
+          Import Shared Folder
         </button>
 
         {/* Folder groups */}
@@ -1701,6 +1948,15 @@ export default function WorkoutPage() {
               <div className={styles.folderActions} onClick={e => e.stopPropagation()}>
                 {editingFolder === folderName ? (
                   <>
+                    <button 
+                      className={styles.folderEditBtn} 
+                      onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); shareFolder(folderName); }} 
+                      title={shareLoading ? "Sharing..." : "Share Folder"} 
+                      style={{ marginRight: '0.4rem' }}
+                      disabled={shareLoading}
+                    >
+                      <Share2 size={16} />
+                    </button>
                     <button className={styles.folderEditBtn} onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); duplicateFolder(folderName); }} title="Duplicate Folder" style={{ marginRight: '0.4rem' }}>
                       <Copy size={16} />
                     </button>
@@ -1879,10 +2135,14 @@ export default function WorkoutPage() {
             </button>
           </div>
 
+          {(() => {
+            const prevSets = exerciseHistory[(ex.name || '').trim().toLowerCase()] || [];
+            return (
           <table className={styles.setTable}>
             <thead>
               <tr>
-                <th style={{ width: '75px' }}>Set</th>
+                <th style={{ width: '65px' }}>Set</th>
+                <th style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Prev</th>
                 <th>lbs</th>
                 <th>Reps</th>
                 <th style={{ width: '50px', textAlign: 'center' }}><Check size={16} /></th>
@@ -1895,10 +2155,17 @@ export default function WorkoutPage() {
                 return ex.sets.map((set, setIdx) => {
                   if (set.type !== 'drop') normalSetCount++;
                   const label = set.type === 'drop' ? 'D' : normalSetCount;
+                  const prev = prevSets[setIdx];
+                  const prevLabel = prev && (prev.lbs || prev.reps)
+                    ? `${prev.lbs || '?'}×${prev.reps || '?'}`
+                    : '—';
                   return (
                     <tr key={setIdx} className={`${styles.setRow} ${set.type === 'drop' ? styles.dropRow : ''} ${set.completed ? styles.completed : ''}`}>
                       <td>
                         <div className={`${styles.setLabel} ${set.type === 'drop' ? styles.drop : ''}`}>{label}</div>
+                      </td>
+                      <td>
+                        <span className={styles.prevHint}>{prevLabel}</span>
                       </td>
                       <td>
                         <input
@@ -1937,6 +2204,8 @@ export default function WorkoutPage() {
               })()}
             </tbody>
           </table>
+            );
+          })()}
 
           <div className={styles.addSetRow}>
             <button className={styles.btnAddSet} onClick={() => addSet(ex.id, 'normal')}>+ Set</button>

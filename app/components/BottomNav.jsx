@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { CalendarDays, Dumbbell, Activity, Sparkles } from 'lucide-react';
+import { CalendarDays, Dumbbell, Activity, Sparkles, Sun } from 'lucide-react';
 import { useAuth } from '../../lib/AuthContext';
 import styles from './BottomNav.module.css';
 
@@ -18,7 +18,8 @@ export default function BottomNav() {
 
   const navItems = [
     { name: 'Workout', href: '/workout', icon: Dumbbell },
-    { name: 'Tracker', href: '/', icon: CalendarDays },
+    { name: 'Tracker', href: '/tracker', icon: CalendarDays },
+    { name: 'Today', href: '/', icon: Sun, isCenter: true },
     { name: 'Overview', href: '/overview', icon: Activity },
     { name: 'Generator', href: '/ai', icon: Sparkles },
   ];
@@ -30,6 +31,21 @@ export default function BottomNav() {
         const Icon = item.icon;
         const isActive = pathname === item.href;
         
+        if (item.isCenter) {
+          return (
+            <Link
+              key={item.name}
+              href={item.href}
+              className={`${styles.navItem} ${styles.navCenter} ${isActive ? styles.centerActive : ''}`}
+            >
+              <div className={`${styles.centerBubble} ${isActive ? styles.centerBubbleActive : ''}`}>
+                <Icon />
+              </div>
+              <span>{item.name}</span>
+            </Link>
+          );
+        }
+
         return (
           <Link 
             key={item.name} 

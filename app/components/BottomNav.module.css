@@ -37,4 +37,42 @@
   height: 24px;
 }
 
+/* ── Center "Today" bubble button ─── */
+.navCenter {
+  position: relative;
+  margin-top: -18px;
+}
 
+.centerBubble {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--surface-light);
+  border: 2px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+}
+
+.centerBubble svg {
+  width: 22px;
+  height: 22px;
+  color: var(--text-muted);
+  transition: color 0.2s;
+}
+
+.centerBubbleActive {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  box-shadow: 0 4px 20px rgba(255,42,117,0.55), 0 0 0 3px rgba(255,42,117,0.15);
+}
+
+.centerBubbleActive svg {
+  color: white;
+}
+
+.centerActive span {
+  color: var(--primary-color);
+}
