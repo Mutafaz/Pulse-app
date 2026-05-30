@@ -128,22 +128,7 @@ export default function OverviewPage() {
 
 
 
-  // Exercise exercise-to-muscle group keyword dictionary mapping
-  const MUSCLE_MAPPINGS = useMemo(() => ({
-    chest: ["bench", "chest", "pushup", "fly", "dip", "pectoral", "incline press", "decline press"],
-    lats: ["pullup", "row", "lat pulldown", "pulldown", "chinup"],
-    traps: ["shrug", "deadlift", "upright row"],
-    shoulders: ["shoulder", "overhead", "lateral raise", "military press", "raise", "deltoid"],
-    biceps: ["bicep", "curl", "chinup", "hammer curl"],
-    triceps: ["tricep", "extension", "skullcrusher", "pushdown", "dip"],
-    forearms: ["wrist", "forearm", "hammer", "grip"],
-    abs: ["crunch", "leg raise", "plank", "ab roller", "situp", "core"],
-    lower_back: ["deadlift", "back extension", "hyper"],
-    glutes: ["hip thrust", "squat", "deadlift", "leg press", "lunge"],
-    quads: ["squat", "leg press", "quad", "leg extension", "lunge"],
-    hamstrings: ["leg curl", "deadlift", "romanian deadlift", "rdl", "curl"],
-    calves: ["calf", "calves", "calf raise"]
-  }), []);
+
 
   // Calculate active muscles and load metrics for the selected day or overall last 7 days
   useEffect(() => {
@@ -209,18 +194,6 @@ export default function OverviewPage() {
               if (Object.keys(loadScore).includes(t)) matchedMuscles.push(t);
             });
           }
-        } else {
-          // Fallback to name-based keyword matching if exercise is completely unknown
-          Object.keys(MUSCLE_MAPPINGS).forEach(muscleKey => {
-            const keywords = MUSCLE_MAPPINGS[muscleKey];
-            let hasKeyword = keywords.some(kw => nameLower.includes(kw));
-
-            if (muscleKey === 'biceps' && (nameLower.includes('leg curl') || nameLower.includes('hamstring curl'))) hasKeyword = false;
-            if (muscleKey === 'triceps' && (nameLower.includes('leg extension') || nameLower.includes('back extension'))) hasKeyword = false;
-            if (muscleKey === 'shoulders' && (nameLower.includes('calf raise') || nameLower.includes('leg raise'))) hasKeyword = false;
-            
-            if (hasKeyword) matchedMuscles.push(muscleKey);
-          });
         }
 
         matchedMuscles = [...new Set(matchedMuscles)]; // deduplicate
