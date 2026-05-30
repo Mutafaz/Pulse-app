@@ -18,7 +18,7 @@ export default function TodayPage() {
   const [templates, setTemplates] = useState([]);
   const [history, setHistory] = useState([]);
   const [dataLoading, setDataLoading] = useState(true);
-  const [expandedExercise, setExpandedExercise] = useState(null);
+
 
   useEffect(() => {
     if (loading) return;
@@ -53,103 +53,7 @@ export default function TodayPage() {
   const isRestDay = todayTemplateId === 'rest';
   const todayTemplate = templates.find(t => t.id === todayTemplateId);
 
-  // For each exercise in today's template, get last performance
-  const exerciseHistory = useMemo(() => {
-    if (!todayTemplate || history.length === 0) return {};
-    const map = {};
-    const names = (todayTemplate.exercises || []).map(e => (e.name || '').trim().toLowerCase());
 
-    for (const session of history) {
-      for (const ex of (session.exercises || [])) {
-        const key = (ex.name || '').trim().toLowerCase();
-        if (names.includes(key) && !map[key]) {
-          const completedSets = (ex.sets || []).filter(s => s.completed && (s.lbs || s.reps));
-          if (completedSets.length > 0) {
-            map[key] = {
-              sets: completedSets,
-              date: new Date(session.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-              volume: completedSets.reduce((sum, s) => sum + ((parseFloat(s.lbs) || 0) * (parseInt(s.reps) || 0)), 0),
-            };
-          }
-        }
-      }
-      if (Object.keys(map).length >= names.length) break;
-    }
-    return map;
-  }, [todayTemplate, history]);
-
-  // Progress graph data per exercise (last 8 sessions with that exercise)
-  const getExerciseProgress = (exerciseName) => {
-    const key = exerciseName.trim().toLowerCase();
-    const points = [];
-    for (const session of [...history].reverse()) {
-      const ex = (session.exercises || []).find(e => (e.name || '').trim().toLowerCase() === key);
-      if (!ex) continue;
-      const completed = (ex.sets || []).filter(s => s.completed);
-      if (!completed.length) continue;
-      const volume = completed.reduce((s, set) => s + ((parseFloat(set.lbs) || 0) * (parseInt(set.reps) || 0)), 0);
-      const best = Math.max(...completed.map(s => parseFloat(s.lbs) || 0));
-      points.push({ date: new Date(session.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), volume: Math.round(volume), best });
-    }
-    return points.slice(-8);
-  };
-
-  const renderMiniGraph = (exerciseName) => {
-    const data = getExerciseProgress(exerciseName);
-    if (data.length < 2) return (
-      <p className={styles.noGraphData}>Log at least 2 sessions to see your trend.</p>
-    );
-    const W = 260, H = 72, padX = 8, padY = 8, padBottom = 20;
-    const volumes = data.map(d => d.volume);
-    const maxV = Math.max(...volumes) || 1;
-    const minV = Math.min(...volumes);
-    const range = maxV - minV || 1;
-    const xStep = (W - padX * 2) / (data.length - 1);
-    const xS = i => padX + i * xStep;
-    const yS = v => padY + (H - padY - padBottom) * (1 - (v - minV) / range);
-    const polyPoints = data.map((d, i) => `${xS(i)},${yS(d.volume)}`).join(' ');
-    const fillPoints = [`${xS(0)},${H - padBottom}`, ...data.map((d, i) => `${xS(i)},${yS(d.volume)}`), `${xS(data.length - 1)},${H - padBottom}`].join(' ');
-    const improving = data[data.length - 1].volume >= data[0].volume;
-
-    return (
-      <div className={styles.miniGraphWrap}>
-        <svg viewBox={`0 0 ${W} ${H}`} className={styles.miniGraphSvg}>
-          <defs>
-            <linearGradient id={`grad-${exerciseName.replace(/\s/g, '')}`} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={improving ? 'rgba(52,211,153,0.3)' : 'rgba(255,42,117,0.3)'} />
-              <stop offset="100%" stopColor="rgba(0,0,0,0)" />
-            </linearGradient>
-          </defs>
-          {[0.33, 0.66, 1].map(t => (
-            <line key={t} x1={padX} x2={W - padX}
-              y1={padY + (H - padY - padBottom) * (1 - t)}
-              y2={padY + (H - padY - padBottom) * (1 - t)}
-              stroke="rgba(255,255,255,0.04)" strokeWidth="1" />
-          ))}
-          <polyline points={fillPoints} fill={`url(#grad-${exerciseName.replace(/\s/g, '')})`} stroke="none" />
-          <polyline points={polyPoints} fill="none"
-            stroke={improving ? '#34d399' : 'var(--primary-color)'}
-            strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          {data.map((d, i) => (
-            <g key={i}>
-              <circle cx={xS(i)} cy={yS(d.volume)} r="3"
-                fill={improving ? '#34d399' : 'var(--primary-color)'}
-                stroke="var(--surface-light)" strokeWidth="1.5" />
-              {(i === 0 || i === data.length - 1) && (
-                <text x={xS(i)} y={H - 5} textAnchor="middle" fontSize="7" fill="rgba(255,255,255,0.35)">{d.date}</text>
-              )}
-            </g>
-          ))}
-        </svg>
-        <div className={styles.miniGraphStats}>
-          <span style={{ color: improving ? '#34d399' : '#f87171', fontWeight: 700, fontSize: '0.75rem' }}>
-            {improving ? '↑' : '↓'} {Math.abs(data[data.length - 1].volume - data[0].volume).toLocaleString()} lbs
-          </span>
-          <span className={styles.miniGraphBest}>Best: {Math.max(...data.map(d => d.best))} lbs</span>
-        </div>
-      </div>
-    );
-  };
 
   if (loading || dataLoading) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '80vh' }}>
@@ -217,72 +121,6 @@ export default function TodayPage() {
             Set Up Schedule →
           </button>
         </div>
-      )}
-
-      {/* Exercise Progress Section */}
-      {todayTemplate && !isRestDay && (
-        <section className={styles.exerciseSection}>
-          <div className={styles.sectionHeaderRow}>
-            <BarChart2 size={16} style={{ color: 'var(--primary-color)' }} />
-            <h2 className={styles.sectionTitle}>Exercise Progress</h2>
-          </div>
-
-          <div className={styles.exerciseList}>
-            {(todayTemplate.exercises || []).map((ex, i) => {
-              const key = (ex.name || '').trim().toLowerCase();
-              const prev = exerciseHistory[key];
-              const isExpanded = expandedExercise === ex.name;
-
-              return (
-                <div key={i} className={`${styles.exerciseCard} ${isExpanded ? styles.exerciseCardExpanded : ''}`}>
-                  <button
-                    className={styles.exerciseCardBtn}
-                    onClick={() => setExpandedExercise(isExpanded ? null : ex.name)}
-                  >
-                    <div className={styles.exerciseCardLeft}>
-                      <span className={styles.exerciseIndex}>{i + 1}</span>
-                      <div className={styles.exerciseCardInfo}>
-                        <span className={styles.exerciseName}>{ex.name}</span>
-                        <span className={styles.exerciseMeta}>
-                          {ex.sets} sets × {ex.reps} reps
-                          {prev && <span className={styles.prevBadge}> · Last: {prev.date}</span>}
-                        </span>
-                      </div>
-                    </div>
-                    <div className={styles.exerciseCardRight}>
-                      {prev && (
-                        <span className={styles.prevVolume}>{prev.volume.toLocaleString()} lbs</span>
-                      )}
-                      {isExpanded ? <ChevronUp size={16} style={{ opacity: 0.5 }} /> : <ChevronDown size={16} style={{ opacity: 0.5 }} />}
-                    </div>
-                  </button>
-
-                  {isExpanded && (
-                    <div className={styles.exerciseExpanded}>
-                      {prev ? (
-                        <>
-                          <div className={styles.prevSetsRow}>
-                            <p className={styles.prevSetsLabel}>Last session sets:</p>
-                            <div className={styles.prevSetsPills}>
-                              {prev.sets.map((s, si) => (
-                                <span key={si} className={styles.setPill}>
-                                  {s.lbs || '?'}lbs × {s.reps || '?'}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                          {renderMiniGraph(ex.name)}
-                        </>
-                      ) : (
-                        <p className={styles.noHistoryText}>No previous data yet. Crush this workout! 💪</p>
-                      )}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </section>
       )}
 
     </div>

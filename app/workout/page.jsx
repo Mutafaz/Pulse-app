@@ -1611,6 +1611,7 @@ export default function WorkoutPage() {
     return (
       <div className={styles.container}>
         {renderExerciseSearchSheet('session')}
+        {renderExerciseInfoModal()}
         {renderAIReviewModal()}
 
         <div className={styles.modal}>
@@ -1880,6 +1881,7 @@ export default function WorkoutPage() {
     return (
       <div className={styles.container}>
         {renderExerciseSearchSheet('session')}
+        {renderExerciseInfoModal()}
         {renderRestDaySheet()}
         {renderShareModal()}
         {renderImportModal()}

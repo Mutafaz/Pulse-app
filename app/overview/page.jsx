@@ -16,7 +16,7 @@ export default function OverviewPage() {
   const { user, userData, loading } = useAuth();
   const router = useRouter();
 
-  const [activeDay, setActiveDay] = useState('all'); // 'all' or specific ISO date string
+  const [activeDay, setActiveDay] = useState(() => new Date().toISOString().split('T')[0]);
   const [viewGender, setViewGender] = useState('male'); // 'male' or 'female'
   const [history, setHistory] = useState([]);
   const [globalExercises, setGlobalExercises] = useState([]);
@@ -25,10 +25,7 @@ export default function OverviewPage() {
   const [historyLoading, setHistoryLoading] = useState(true);
   const [weekOffset, setWeekOffset] = useState(0);
 
-  // Exercise Progress Graph state
-  const [progressExercise, setProgressExercise] = useState('');
-  const [progressSearchQuery, setProgressSearchQuery] = useState('');
-  const [showProgressSearch, setShowProgressSearch] = useState(false);
+
 
   // Today's Plan state
   const [templates, setTemplates] = useState([]);
@@ -128,34 +125,7 @@ export default function OverviewPage() {
     return list;
   }, [weekOffset]);
 
-  // ── Exercise Progress Graph computed data ────────────────────────────
-  const progressData = useMemo(() => {
-    if (!progressExercise || history.length === 0) return [];
-    const key = progressExercise.trim().toLowerCase();
-    const points = [];
-    for (const session of [...history].reverse()) { // oldest first for the graph
-      const ex = (session.exercises || []).find(e => (e.name || '').trim().toLowerCase() === key);
-      if (!ex) continue;
-      const completedSets = (ex.sets || []).filter(s => s.completed);
-      if (completedSets.length === 0) continue;
-      const volume = completedSets.reduce((sum, s) => {
-        const w = parseFloat(s.lbs) || 0;
-        const r = parseInt(s.reps) || 0;
-        return sum + w * r;
-      }, 0);
-      const bestSet = Math.max(...completedSets.map(s => parseFloat(s.lbs) || 0));
-      const date = new Date(session.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-      points.push({ date, volume: Math.round(volume), bestSet });
-    }
-    return points.slice(-10); // last 10 sessions with this exercise
-  }, [progressExercise, history]);
 
-  // All unique exercise names from history
-  const allExerciseNames = useMemo(() => {
-    const names = new Set();
-    history.forEach(s => (s.exercises || []).forEach(e => { if (e.name) names.add(e.name); }));
-    return [...names].sort();
-  }, [history]);
 
   // ── Today's Plan ─────────────────────────────────────────────────────
   const todayPlan = useMemo(() => {
@@ -308,69 +278,7 @@ export default function OverviewPage() {
     return styles.musclePath;
   };
 
-  // ── SVG Line Graph renderer ─────────────────────────────────────────
-  const renderProgressGraph = () => {
-    if (progressData.length < 2) {
-      return (
-        <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-          {progressData.length === 0 ? 'No sessions found for this exercise.' : 'Log at least 2 sessions to see your trend.'}
-        </div>
-      );
-    }
-    const W = 300, H = 120, pad = { top: 10, bottom: 30, left: 10, right: 10 };
-    const volumes = progressData.map(p => p.volume);
-    const maxV = Math.max(...volumes) || 1;
-    const minV = Math.min(...volumes);
-    const range = maxV - minV || 1;
-    const xStep = (W - pad.left - pad.right) / (progressData.length - 1);
-    const yScale = (v) => pad.top + ((H - pad.top - pad.bottom) * (1 - (v - minV) / range));
-    const xScale = (i) => pad.left + i * xStep;
-    const points = progressData.map((p, i) => `${xScale(i)},${yScale(p.volume)}`).join(' ');
 
-    return (
-      <div style={{ overflowX: 'auto' }}>
-        <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', maxWidth: '500px', display: 'block', margin: '0 auto' }}>
-          {/* Grid lines */}
-          {[0.25, 0.5, 0.75, 1].map(t => (
-            <line key={t} x1={pad.left} x2={W - pad.right}
-              y1={pad.top + (H - pad.top - pad.bottom) * (1 - t)}
-              y2={pad.top + (H - pad.top - pad.bottom) * (1 - t)}
-              stroke="rgba(255,255,255,0.06)" strokeWidth="1" />
-          ))}
-          {/* Gradient fill under line */}
-          <defs>
-            <linearGradient id="lineGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="rgba(255,42,117,0.35)" />
-              <stop offset="100%" stopColor="rgba(255,42,117,0)" />
-            </linearGradient>
-          </defs>
-          <polyline
-            points={[`${xScale(0)},${H - pad.bottom}`, ...progressData.map((p, i) => `${xScale(i)},${yScale(p.volume)}`), `${xScale(progressData.length - 1)},${H - pad.bottom}`].join(' ')}
-            fill="url(#lineGrad)" stroke="none"
-          />
-          {/* Line */}
-          <polyline
-            points={points}
-            fill="none"
-            stroke="var(--primary-color)"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          {/* Dots + labels */}
-          {progressData.map((p, i) => (
-            <g key={i}>
-              <circle cx={xScale(i)} cy={yScale(p.volume)} r="4" fill="var(--primary-color)" stroke="var(--surface-light)" strokeWidth="2" />
-              {i === progressData.length - 1 || i === 0 ? (
-                <text x={xScale(i)} y={yScale(p.volume) - 8} textAnchor="middle" fontSize="8" fill="var(--primary-color)" fontWeight="700">{p.volume}</text>
-              ) : null}
-              <text x={xScale(i)} y={H - 5} textAnchor="middle" fontSize="7" fill="var(--text-muted)">{p.date}</text>
-            </g>
-          ))}
-        </svg>
-      </div>
-    );
-  };
 
   return (
     <div className={styles.container}>
@@ -662,122 +570,6 @@ export default function OverviewPage() {
       </div>
 
 
-      {/* ── Exercise Progress Graph ─────────────────────────────────────── */}
-      <div style={{
-        background: 'var(--card-bg, #1a1a24)',
-        border: '1px solid var(--border-subtle, rgba(255,255,255,0.06))',
-        borderRadius: '16px',
-        padding: '1.25rem',
-        marginBottom: '1.5rem'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Activity size={18} style={{ color: 'var(--primary-color)' }} />
-            <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: 'var(--text-main)' }}>Exercise Progress</h3>
-          </div>
-        </div>
-
-        {/* Exercise picker */}
-        <div style={{ position: 'relative', marginBottom: '1rem' }}>
-          <input
-            type="text"
-            placeholder="Search exercise to track..."
-            value={progressSearchQuery}
-            onChange={e => { setProgressSearchQuery(e.target.value); setShowProgressSearch(true); }}
-            onFocus={() => setShowProgressSearch(true)}
-            onBlur={() => setTimeout(() => setShowProgressSearch(false), 150)}
-            style={{
-              width: '100%',
-              padding: '0.65rem 0.9rem',
-              borderRadius: '10px',
-              border: '1px solid var(--border-color)',
-              background: 'var(--surface-color)',
-              color: 'var(--text-main)',
-              fontSize: '0.9rem',
-              outline: 'none',
-              boxSizing: 'border-box'
-            }}
-          />
-          {progressExercise && (
-            <span style={{
-              position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)',
-              fontSize: '0.75rem', color: 'var(--primary-color)', fontWeight: 700, cursor: 'pointer'
-            }} onClick={() => { setProgressExercise(''); setProgressSearchQuery(''); }}>
-              Clear
-            </span>
-          )}
-          {showProgressSearch && progressSearchQuery && (
-            <div style={{
-              position: 'absolute', top: '110%', left: 0, right: 0, zIndex: 100,
-              background: 'var(--surface-light)',
-              border: '1px solid var(--border-color)',
-              borderRadius: '10px',
-              maxHeight: '160px', overflowY: 'auto',
-              boxShadow: '0 8px 24px rgba(0,0,0,0.4)'
-            }}>
-              {allExerciseNames
-                .filter(n => n.toLowerCase().includes(progressSearchQuery.toLowerCase()))
-                .slice(0, 10)
-                .map(name => (
-                  <button
-                    key={name}
-                    onMouseDown={() => {
-                      setProgressExercise(name);
-                      setProgressSearchQuery(name);
-                      setShowProgressSearch(false);
-                    }}
-                    style={{
-                      display: 'block', width: '100%', padding: '0.6rem 0.9rem',
-                      background: 'transparent', border: 'none', textAlign: 'left',
-                      color: 'var(--text-main)', fontSize: '0.88rem', cursor: 'pointer'
-                    }}
-                  >{name}</button>
-                ))
-              }
-              {allExerciseNames.filter(n => n.toLowerCase().includes(progressSearchQuery.toLowerCase())).length === 0 && (
-                <div style={{ padding: '0.75rem', color: 'var(--text-muted)', fontSize: '0.85rem' }}>No exercises found in history</div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {progressExercise ? (
-          <>
-            <p style={{ margin: '0 0 0.75rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-              Showing last {progressData.length} sessions • Volume = lbs × reps completed
-            </p>
-            {renderProgressGraph()}
-            {progressData.length >= 2 && (
-              <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid var(--border-color)' }}>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--primary-color)' }}>
-                    {Math.max(...progressData.map(p => p.volume)).toLocaleString()}
-                  </div>
-                  <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Peak Volume</div>
-                </div>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#34d399' }}>
-                    {Math.max(...progressData.map(p => p.bestSet))} lbs
-                  </div>
-                  <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Best Set</div>
-                </div>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: '1.1rem', fontWeight: 800, color: progressData[progressData.length - 1]?.volume >= progressData[0]?.volume ? '#34d399' : '#f87171' }}>
-                    {progressData[progressData.length - 1]?.volume >= progressData[0]?.volume ? '↑' : '↓'}
-                    {Math.abs(progressData[progressData.length - 1]?.volume - progressData[0]?.volume).toLocaleString()}
-                  </div>
-                  <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Trend</div>
-                </div>
-              </div>
-            )}
-          </>
-        ) : (
-          <div style={{ textAlign: 'center', padding: '1.5rem', color: 'var(--text-muted)', fontSize: '0.88rem' }}>
-            <Dumbbell size={28} style={{ opacity: 0.3, marginBottom: '0.5rem', display: 'block', margin: '0 auto 0.5rem' }} />
-            Search for an exercise above to track your progress over time
-          </div>
-        )}
-      </div>
 
     </div>
   );

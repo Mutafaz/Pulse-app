@@ -331,49 +331,7 @@ export default function TrackerPage() {
     return workoutsByDate[key] || [];
   };
 
-  // Streak + activity stats
-  const streakData = useMemo(() => {
-    if (!history || history.length === 0) return { currentStreak: 0, longestStreak: 0, totalActiveDays: 0, workoutDays: 0, restDays: 0 };
 
-    // Build a set of active days (ISO date strings)
-    const activeDaySet = new Set();
-    history.forEach(h => {
-      const d = new Date(h.createdAt);
-      activeDaySet.add(d.toISOString().split('T')[0]);
-    });
-
-    const sortedDays = Array.from(activeDaySet).sort();
-
-    // Current streak: count backwards from today
-    let currentStreak = 0;
-    const todayCheck = new Date();
-    let checkDate = new Date(todayCheck);
-    while (true) {
-      const dateStr = checkDate.toISOString().split('T')[0];
-      if (activeDaySet.has(dateStr)) {
-        currentStreak++;
-        checkDate.setDate(checkDate.getDate() - 1);
-      } else {
-        break;
-      }
-    }
-
-    // Longest streak
-    let longest = 0, current = 1;
-    for (let i = 1; i < sortedDays.length; i++) {
-      const prev = new Date(sortedDays[i - 1]);
-      const curr = new Date(sortedDays[i]);
-      const diff = (curr - prev) / (1000 * 60 * 60 * 24);
-      if (diff === 1) { current++; longest = Math.max(longest, current); }
-      else { current = 1; }
-    }
-    if (sortedDays.length === 1) longest = 1;
-
-    const workoutDays = history.filter(h => !h.isRestDay).length;
-    const restDays = history.filter(h => h.isRestDay).length;
-
-    return { currentStreak, longestStreak: Math.max(longest, currentStreak), totalActiveDays: activeDaySet.size, workoutDays, restDays };
-  }, [history]);
 
   const today = new Date();
   const isToday = (day) => today.getFullYear() === year && today.getMonth() === month && today.getDate() === day;
@@ -444,54 +402,7 @@ export default function TrackerPage() {
       {activeTab === 'calendar' && (
         <div className={styles.tabContentPanel}>
 
-          {/* Streak Counter Card */}
-          <div className={styles.streakCard}>
-            <div className={styles.streakLeft}>
-              <div className={styles.streakFlame}>🔥</div>
-              <div className={styles.streakInfo}>
-                <span className={styles.streakCount}>{streakData.currentStreak}</span>
-                <span className={styles.streakLabel}>Day Streak</span>
-              </div>
-              {streakData.longestStreak > 0 && (
-                <div className={styles.streakBest}>
-                  <span className={styles.streakBestLabel}>Best:</span>
-                  <span className={styles.streakBestValue}>{streakData.longestStreak}</span>
-                </div>
-              )}
-            </div>
-            <div className={styles.streakRight}>
-              <svg width="56" height="56" viewBox="0 0 56 56">
-                <circle cx="28" cy="28" r="22" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="8" />
-                {streakData.totalActiveDays > 0 && (
-                  <circle
-                    cx="28" cy="28" r="22"
-                    fill="none"
-                    stroke="var(--primary-color)"
-                    strokeWidth="8"
-                    strokeDasharray={`${(streakData.workoutDays / streakData.totalActiveDays) * 138.2} 138.2`}
-                    strokeLinecap="round"
-                    transform="rotate(-90 28 28)"
-                  />
-                )}
-                {streakData.totalActiveDays > 0 && streakData.restDays > 0 && (
-                  <circle
-                    cx="28" cy="28" r="22"
-                    fill="none"
-                    stroke="#00e676"
-                    strokeWidth="8"
-                    strokeDasharray={`${(streakData.restDays / streakData.totalActiveDays) * 138.2} 138.2`}
-                    strokeDashoffset={`-${(streakData.workoutDays / streakData.totalActiveDays) * 138.2}`}
-                    strokeLinecap="round"
-                    transform="rotate(-90 28 28)"
-                  />
-                )}
-              </svg>
-              <div className={styles.streakRatioLabels}>
-                <span className={styles.ratioWorkout}>{streakData.workoutDays} Workouts</span>
-                <span className={styles.ratioRest}>{streakData.restDays} Rest</span>
-              </div>
-            </div>
-          </div>
+
 
           {/* Monthly Stats */}
           <div className={styles.statsRow}>

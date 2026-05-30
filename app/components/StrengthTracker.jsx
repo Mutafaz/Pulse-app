@@ -4,7 +4,7 @@ import { Dumbbell, TrendingUp, Plus, Trash2, Info } from 'lucide-react';
 import { collection, getDocs, setDoc, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { useAuth } from '../../lib/AuthContext';
-import pageStyles from '../page.module.css';
+import pageStyles from '../tracker/page.module.css';
 import styles from './StrengthTracker.module.css';
 
 // Combine both style objects — pageStyles for shared components, styles for 1RM-specific ones
