@@ -29,9 +29,6 @@ async function main() {
     process.exit(1);
   }
 
-  const email = await question("Pulse Account Email: ");
-  const password = await question("Pulse Account Password: ");
-
   console.log("\nConnecting to Firebase...");
   const app = initializeApp({
     apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -39,29 +36,23 @@ async function main() {
     projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
   });
 
-  const auth = getAuth(app);
   const db = getFirestore(app);
-
-  let userCredential;
-  try {
-    userCredential = await signInWithEmailAndPassword(auth, email, password);
-    console.log(`Successfully logged in as ${userCredential.user.email}`);
-  } catch (err) {
-    console.error("Login failed:", err.message);
-    process.exit(1);
-  }
 
   // Set up Gemini
   const ai = new GoogleGenAI({ apiKey });
 
-  console.log("\nFetching history...");
-  const historyRef = collection(db, "users", userCredential.user.uid, "history");
-  const snap = await getDocs(historyRef);
-  
-  const docs = [];
-  snap.forEach(d => docs.push({ id: d.id, ...d.data() }));
-  
-  console.log(`Found ${docs.length} workout sessions. Analyzing exercises...`);
+  console.log("\nFetching all users...");
+  let usersSnap;
+  try {
+    usersSnap = await getDocs(collection(db, "users"));
+  } catch (err) {
+    console.error("Failed to fetch users. Ensure your Firestore rules allow global read/write (Test Mode) since we aren't using Firebase Admin:", err.message);
+    process.exit(1);
+  }
+
+  const userIds = [];
+  usersSnap.forEach(d => userIds.push(d.id));
+  console.log(`Found ${userIds.length} users. Analyzing their workout histories...`);
 
   const promptTemplate = `
 You are a fitness data cleaner. The user logged an exercise with a messy name.
@@ -71,36 +62,46 @@ Return ONLY the clean name, nothing else.
 Messy name: "{name}"
 Clean name:`;
 
-  for (const session of docs) {
-    let changed = false;
-    const cleanExercises = [];
-    for (const ex of (session.exercises || [])) {
-      if (!ex.name) continue;
-      
-      try {
-        const response = await ai.models.generateContent({
-          model: 'gemini-2.5-flash',
-          contents: promptTemplate.replace("{name}", ex.name),
-        });
-        const cleanName = response.text.trim();
+  for (const uid of userIds) {
+    console.log(`\n--- Cleaning history for user: ${uid} ---`);
+    const historyRef = collection(db, "users", uid, "history");
+    const snap = await getDocs(historyRef);
+    
+    const docs = [];
+    snap.forEach(d => docs.push({ id: d.id, ...d.data() }));
+    console.log(`Found ${docs.length} sessions.`);
+
+    for (const session of docs) {
+      let changed = false;
+      const cleanExercises = [];
+      for (const ex of (session.exercises || [])) {
+        if (!ex.name) continue;
         
-        if (cleanName && cleanName.toLowerCase() !== ex.name.toLowerCase()) {
-          console.log(`Mapping: "${ex.name}"  -->  "${cleanName}"`);
-          cleanExercises.push({ ...ex, name: cleanName });
-          changed = true;
-        } else {
+        try {
+          const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: promptTemplate.replace("{name}", ex.name),
+          });
+          const cleanName = response.text.trim();
+          
+          if (cleanName && cleanName.toLowerCase() !== ex.name.toLowerCase()) {
+            console.log(`  Mapping: "${ex.name}"  -->  "${cleanName}"`);
+            cleanExercises.push({ ...ex, name: cleanName });
+            changed = true;
+          } else {
+            cleanExercises.push(ex);
+          }
+        } catch (err) {
+          console.error(`  Failed to map ${ex.name}:`, err.message);
           cleanExercises.push(ex);
         }
-      } catch (err) {
-        console.error(`Failed to map ${ex.name}:`, err.message);
-        cleanExercises.push(ex);
       }
-    }
 
-    if (changed) {
-      const docRef = doc(db, "users", userCredential.user.uid, "history", session.id);
-      await updateDoc(docRef, { exercises: cleanExercises });
-      console.log(`Updated session: ${session.name} (${session.id})`);
+      if (changed) {
+        const docRef = doc(db, "users", uid, "history", session.id);
+        await updateDoc(docRef, { exercises: cleanExercises });
+        console.log(`  Saved session: ${session.name} (${session.id})`);
+      }
     }
   }
 

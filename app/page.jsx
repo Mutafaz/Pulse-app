@@ -93,7 +93,7 @@ export default function TodayPage() {
         </div>
       );
     }
-    const W = 300, H = 120, pad = { top: 10, bottom: 30, left: 10, right: 10 };
+    const W = 300, H = 120, pad = { top: 15, bottom: 30, left: 25, right: 25 };
     const volumes = progressData.map(p => p.volume);
     const maxV = Math.max(...volumes) || 1;
     const minV = Math.min(...volumes);
@@ -134,9 +134,22 @@ export default function TodayPage() {
             <g key={i}>
               <circle cx={xScale(i)} cy={yScale(p.volume)} r="4" fill="var(--primary-color)" stroke="var(--surface-light)" strokeWidth="2" />
               {i === progressData.length - 1 || i === 0 ? (
-                <text x={xScale(i)} y={yScale(p.volume) - 8} textAnchor="middle" fontSize="8" fill="var(--primary-color)" fontWeight="700">{p.volume}</text>
+                <text 
+                  x={xScale(i)} 
+                  y={yScale(p.volume) - 8} 
+                  textAnchor={i === 0 ? "start" : "end"} 
+                  fontSize="8" 
+                  fill="var(--primary-color)" 
+                  fontWeight="700"
+                >{p.volume}</text>
               ) : null}
-              <text x={xScale(i)} y={H - 5} textAnchor="middle" fontSize="7" fill="var(--text-muted)">{p.date}</text>
+              <text 
+                x={xScale(i)} 
+                y={H - 5} 
+                textAnchor={i === 0 ? "start" : i === progressData.length - 1 ? "end" : "middle"} 
+                fontSize="7" 
+                fill="var(--text-muted)"
+              >{p.date}</text>
             </g>
           ))}
         </svg>

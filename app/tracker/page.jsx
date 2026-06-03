@@ -20,7 +20,8 @@ import {
   X,
   Moon,
   Share2,
-  Pencil
+  Pencil,
+  Copy
 } from 'lucide-react';
 import styles from './page.module.css';
 import StrengthTracker from '../components/StrengthTracker';
@@ -529,6 +530,26 @@ export default function TrackerPage() {
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
                               <h4 className={styles.dayModalWorkoutName}>{w.name}</h4>
                               <div className={styles.workoutActions}>
+                                <button
+                                  className={styles.shareBtn}
+                                  onClick={() => {
+                                    const exText = (w.exercises || []).map((ex, i) => {
+                                      const completed = ex.sets?.filter(s => s.completed) || [];
+                                      if (completed.length === 0) return `${i + 1}. ${ex.name} - 0 sets`;
+                                      const setDetails = completed.map(s => {
+                                        const lbs = parseFloat(s.lbs) || 0;
+                                        return lbs > 0 ? `${s.reps}x${lbs}lbs` : `${s.reps} reps`;
+                                      }).join(', ');
+                                      return `${i + 1}. ${ex.name} - ${completed.length} sets (${setDetails})`;
+                                    }).join('\n');
+                                    const text = `Pulse Workout: ${w.name}\nDuration: ${formatDuration(w.durationSeconds)}\nVolume: ${(w.totalVolume || 0).toLocaleString()} lbs\n\nExercises:\n${exText}`;
+                                    navigator.clipboard.writeText(text);
+                                    alert('Workout copied to clipboard!');
+                                  }}
+                                  title="Copy for Strava"
+                                >
+                                  <Copy size={14} />
+                                </button>
                                 <button
                                   className={styles.shareBtn}
                                   onClick={async () => {
