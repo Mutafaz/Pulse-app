@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import styles from './page.module.css';
 import StrengthTracker from '../components/StrengthTracker';
+import CardioTracker from '../components/CardioTracker';
 import SocialShareCard from '../components/SocialShareCard';
 import * as htmlToImage from 'html-to-image';
 
@@ -396,6 +397,12 @@ export default function TrackerPage() {
           onClick={() => setActiveTab('strength')}
         >
           Strength (1RM)
+        </button>
+        <button 
+          className={`${styles.tabBtn} ${activeTab === 'cardio' ? styles.activeTab : ''}`}
+          onClick={() => setActiveTab('cardio')}
+        >
+          Cardio
         </button>
       </div>
 
@@ -827,6 +834,13 @@ export default function TrackerPage() {
       {activeTab === 'strength' && (
         <div className={styles.tabContentPanel}>
           <StrengthTracker />
+        </div>
+      )}
+
+      {/* Tab D: Cardio Tracker */}
+      {activeTab === 'cardio' && (
+        <div className={styles.tabContentPanel}>
+          <CardioTracker />
         </div>
       )}
 

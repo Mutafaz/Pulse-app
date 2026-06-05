@@ -215,7 +215,7 @@ export default function OverviewPage() {
     });
 
     setMuscleLoad(normalized);
-  }, [activeDay, history, timelineDays, MUSCLE_MAPPINGS, globalExercises, customExercises]);
+  }, [activeDay, history, timelineDays, globalExercises, customExercises]);
 
   // UI status labels
   const getHeaderDateLabel = () => {
