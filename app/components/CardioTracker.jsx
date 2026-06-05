@@ -192,7 +192,7 @@ export default function CardioTracker() {
             />
           </div>
 
-          <div className={styles.formGroup} style={{ gridColumn: '1 / -1' }}>
+          <div className={`${styles.formGroup} ${styles.fullWidth}`}>
             <label className={styles.label}>Calories Burned - Optional</label>
             <input 
               type="number" 
@@ -204,7 +204,7 @@ export default function CardioTracker() {
             />
           </div>
 
-          <div style={{ gridColumn: '1 / -1' }}>
+          <div className={styles.fullWidth}>
             <button type="submit" className={styles.submitBtn} disabled={isSaving || !duration}>
               {isSaving ? 'Saving...' : 'Save Session'}
             </button>

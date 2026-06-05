@@ -233,3 +233,21 @@
   opacity: 0.5;
   margin-bottom: 0.75rem;
 }
+
+@media (max-width: 600px) {
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .statsRow {
+    gap: 0.5rem;
+  }
+  
+  .statCard {
+    padding: 0.75rem 0.5rem;
+  }
+  
+  .statValue {
+    font-size: 1.1rem;
+  }
+}
