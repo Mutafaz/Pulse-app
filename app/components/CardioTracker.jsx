@@ -118,6 +118,78 @@ export default function CardioTracker() {
     return <Activity size={16} />;
   };
 
+  const renderGraph = () => {
+    if (logs.length < 2) return null;
+    
+    // Grab the 10 oldest first for chronological order
+    const graphData = [...logs].reverse().slice(-10);
+    
+    const W = 300, H = 100, pad = { top: 15, bottom: 25, left: 25, right: 25 };
+    const values = graphData.map(l => l.durationMinutes || 0);
+    const maxV = Math.max(...values) || 1;
+    const minV = Math.min(...values);
+    const range = maxV - minV || 1;
+    const xStep = (W - pad.left - pad.right) / (graphData.length - 1);
+    const yScale = (v) => pad.top + ((H - pad.top - pad.bottom) * (1 - (v - minV) / range));
+    const xScale = (i) => pad.left + i * xStep;
+    
+    const points = graphData.map((p, i) => `${xScale(i)},${yScale(p.durationMinutes || 0)}`).join(' ');
+
+    return (
+      <div style={{ overflowX: 'auto', marginBottom: '0.5rem', marginTop: '0.5rem' }}>
+        <h4 style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textAlign: 'center', marginBottom: '0.5rem' }}>Duration Trend (Last 10 Sessions)</h4>
+        <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', maxWidth: '500px', display: 'block', margin: '0 auto' }}>
+          {[0.25, 0.5, 0.75, 1].map(t => (
+            <line key={t} x1={pad.left} x2={W - pad.right}
+              y1={pad.top + (H - pad.top - pad.bottom) * (1 - t)}
+              y2={pad.top + (H - pad.top - pad.bottom) * (1 - t)}
+              stroke="rgba(255,255,255,0.06)" strokeWidth="1" />
+          ))}
+          <defs>
+            <linearGradient id="cardioGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="rgba(255,42,117,0.35)" />
+              <stop offset="100%" stopColor="rgba(255,42,117,0)" />
+            </linearGradient>
+          </defs>
+          <polyline
+            points={[`${xScale(0)},${H - pad.bottom}`, ...graphData.map((p, i) => `${xScale(i)},${yScale(p.durationMinutes || 0)}`), `${xScale(graphData.length - 1)},${H - pad.bottom}`].join(' ')}
+            fill="url(#cardioGrad)" stroke="none"
+          />
+          <polyline
+            points={points}
+            fill="none"
+            stroke="var(--primary-color)"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          {graphData.map((p, i) => (
+            <g key={i}>
+              <circle cx={xScale(i)} cy={yScale(p.durationMinutes || 0)} r="3" fill="var(--primary-color)" stroke="var(--surface-light)" strokeWidth="2" />
+              {i === graphData.length - 1 || i === 0 ? (
+                <text 
+                  x={xScale(i)} 
+                  y={yScale(p.durationMinutes || 0) - 8} 
+                  textAnchor={i === 0 ? "start" : "end"} 
+                  fontSize="7" 
+                  fill="var(--primary-color)" 
+                  fontWeight="700"
+                >{p.durationMinutes}m</text>
+              ) : null}
+              <text 
+                x={xScale(i)} 
+                y={H - 5} 
+                textAnchor={i === 0 ? "start" : i === graphData.length - 1 ? "end" : "middle"} 
+                fontSize="6" 
+                fill="var(--text-muted)"
+              >{new Date(p.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</text>
+            </g>
+          ))}
+        </svg>
+      </div>
+    );
+  };
+
   return (
     <div className={styles.container}>
       
@@ -139,6 +211,9 @@ export default function CardioTracker() {
           <span className={styles.statLabel}>Calories</span>
         </div>
       </div>
+
+      {/* Graph */}
+      {renderGraph()}
 
       {/* Add Log Form */}
       <div className={styles.formCard}>
