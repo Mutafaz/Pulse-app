@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { collection, getDocs, doc, deleteDoc, setDoc } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { useAuth } from '../../lib/AuthContext';
-import { Activity, Clock, Flame, Route, Trash2, Plus, Calendar as CalendarIcon, Bike, Waves, Footprints } from 'lucide-react';
+import { Activity, Clock, Flame, Route, Trash2, Plus, Calendar as CalendarIcon, Bike, Waves, Footprints, Mountain, ArrowUp, Timer, Gauge, RefreshCcw } from 'lucide-react';
 import styles from './CardioTracker.module.css';
 
 const CARDIO_TYPES = [
@@ -30,6 +30,20 @@ export default function CardioTracker() {
   const [duration, setDuration] = useState('');
   const [distance, setDistance] = useState('');
   const [calories, setCalories] = useState('');
+  
+  // Dynamic State
+  const [speed, setSpeed] = useState('');
+  const [pace, setPace] = useState('');
+  const [elevation, setElevation] = useState('');
+  const [floors, setFloors] = useState('');
+  const [spm, setSpm] = useState('');
+  const [split, setSplit] = useState('');
+  const [laps, setLaps] = useState('');
+
+  // Clear dynamic fields when type changes
+  useEffect(() => {
+    setSpeed(''); setPace(''); setElevation(''); setFloors(''); setSpm(''); setSplit(''); setLaps('');
+  }, [type]);
 
   const fetchLogs = async () => {
     if (!user) return;
@@ -55,12 +69,22 @@ export default function CardioTracker() {
 
     setIsSaving(true);
     try {
+      const extraMetrics = {};
+      if (speed) extraMetrics.speed = speed;
+      if (pace) extraMetrics.pace = pace;
+      if (elevation) extraMetrics.elevation = parseInt(elevation);
+      if (floors) extraMetrics.floors = parseInt(floors);
+      if (spm) extraMetrics.spm = parseInt(spm);
+      if (split) extraMetrics.split = split;
+      if (laps) extraMetrics.laps = parseInt(laps);
+
       const newLog = {
         date,
         type,
         durationMinutes: parseInt(duration) || 0,
         distanceMiles: parseFloat(distance) || 0,
         calories: parseInt(calories) || 0,
+        extraMetrics,
         createdAt: new Date().toISOString()
       };
       
@@ -68,9 +92,8 @@ export default function CardioTracker() {
       await setDoc(doc(db, "users", user.uid, "cardio_history", docId), newLog);
       
       // Reset form
-      setDuration('');
-      setDistance('');
-      setCalories('');
+      setDuration(''); setDistance(''); setCalories('');
+      setSpeed(''); setPace(''); setElevation(''); setFloors(''); setSpm(''); setSplit(''); setLaps('');
       
       await fetchLogs();
     } catch (err) {
@@ -254,18 +277,85 @@ export default function CardioTracker() {
             />
           </div>
 
-          <div className={styles.formGroup}>
-            <label className={styles.label}>Distance (miles) - Optional</label>
-            <input 
-              type="number" 
-              step="0.01" 
-              className={styles.input} 
-              placeholder="e.g. 3.1" 
-              value={distance} 
-              onChange={e => setDistance(e.target.value)} 
-              min="0"
-            />
-          </div>
+          {type !== 'Stairmaster' && type !== 'HIIT' && type !== 'Other' && (
+            <div className={styles.formGroup}>
+              <label className={styles.label}>
+                Distance ({type === 'Rowing' || type === 'Swimming' ? 'meters' : 'miles'})
+              </label>
+              <input 
+                type="number" 
+                step="0.01" 
+                className={styles.input} 
+                placeholder={type === 'Rowing' || type === 'Swimming' ? "e.g. 2000" : "e.g. 3.1"} 
+                value={distance} 
+                onChange={e => setDistance(e.target.value)} 
+                min="0"
+              />
+            </div>
+          )}
+
+          {(type === 'Running' || type === 'Walking' || type === 'Elliptical') && (
+            <>
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Speed (mph)</label>
+                <input type="number" step="0.1" className={styles.input} placeholder="e.g. 6.5" value={speed} onChange={e => setSpeed(e.target.value)} />
+              </div>
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Pace (min/mi)</label>
+                <input type="text" className={styles.input} placeholder="e.g. 9:15" value={pace} onChange={e => setPace(e.target.value)} />
+              </div>
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Elevation Gain (ft)</label>
+                <input type="number" className={styles.input} placeholder="e.g. 300" value={elevation} onChange={e => setElevation(e.target.value)} />
+              </div>
+            </>
+          )}
+
+          {type === 'Cycling' && (
+            <>
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Average Speed (mph)</label>
+                <input type="number" step="0.1" className={styles.input} placeholder="e.g. 14.5" value={speed} onChange={e => setSpeed(e.target.value)} />
+              </div>
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Elevation Gain (ft)</label>
+                <input type="number" className={styles.input} placeholder="e.g. 800" value={elevation} onChange={e => setElevation(e.target.value)} />
+              </div>
+            </>
+          )}
+
+          {type === 'Rowing' && (
+            <>
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Split Time (/500m)</label>
+                <input type="text" className={styles.input} placeholder="e.g. 2:05" value={split} onChange={e => setSplit(e.target.value)} />
+              </div>
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Strokes per min (SPM)</label>
+                <input type="number" className={styles.input} placeholder="e.g. 24" value={spm} onChange={e => setSpm(e.target.value)} />
+              </div>
+            </>
+          )}
+
+          {type === 'Stairmaster' && (
+            <>
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Floors Climbed</label>
+                <input type="number" className={styles.input} placeholder="e.g. 50" value={floors} onChange={e => setFloors(e.target.value)} />
+              </div>
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Steps per min</label>
+                <input type="number" className={styles.input} placeholder="e.g. 60" value={spm} onChange={e => setSpm(e.target.value)} />
+              </div>
+            </>
+          )}
+
+          {type === 'Swimming' && (
+            <div className={styles.formGroup}>
+              <label className={styles.label}>Laps</label>
+              <input type="number" className={styles.input} placeholder="e.g. 40" value={laps} onChange={e => setLaps(e.target.value)} />
+            </div>
+          )}
 
           <div className={`${styles.formGroup} ${styles.fullWidth}`}>
             <label className={styles.label}>Calories Burned - Optional</label>
@@ -313,7 +403,49 @@ export default function CardioTracker() {
                   {log.distanceMiles > 0 && (
                     <div className={styles.logMetric}>
                       <Route size={14} />
-                      {log.distanceMiles} mi
+                      {log.distanceMiles} {log.type === 'Rowing' || log.type === 'Swimming' ? 'm' : 'mi'}
+                    </div>
+                  )}
+                  {log.extraMetrics?.speed && (
+                    <div className={styles.logMetric}>
+                      <Gauge size={14} />
+                      {log.extraMetrics.speed} mph
+                    </div>
+                  )}
+                  {log.extraMetrics?.pace && (
+                    <div className={styles.logMetric}>
+                      <Timer size={14} />
+                      {log.extraMetrics.pace} min/mi
+                    </div>
+                  )}
+                  {log.extraMetrics?.elevation > 0 && (
+                    <div className={styles.logMetric}>
+                      <Mountain size={14} />
+                      {log.extraMetrics.elevation} ft
+                    </div>
+                  )}
+                  {log.extraMetrics?.floors > 0 && (
+                    <div className={styles.logMetric}>
+                      <ArrowUp size={14} />
+                      {log.extraMetrics.floors} floors
+                    </div>
+                  )}
+                  {log.extraMetrics?.laps > 0 && (
+                    <div className={styles.logMetric}>
+                      <RefreshCcw size={14} />
+                      {log.extraMetrics.laps} laps
+                    </div>
+                  )}
+                  {log.extraMetrics?.split && (
+                    <div className={styles.logMetric}>
+                      <Timer size={14} />
+                      {log.extraMetrics.split} /500m
+                    </div>
+                  )}
+                  {log.extraMetrics?.spm > 0 && (
+                    <div className={styles.logMetric}>
+                      <Gauge size={14} />
+                      {log.extraMetrics.spm} {log.type === 'Stairmaster' ? 'steps/min' : 'spm'}
                     </div>
                   )}
                   {log.calories > 0 && (
