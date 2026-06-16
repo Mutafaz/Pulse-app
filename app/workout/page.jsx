@@ -747,20 +747,27 @@ export default function WorkoutPage() {
       snapshot.forEach(d => records.push({ id: d.id, ...d.data() }));
       records.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-      const historyMap = {};
-      const nameLookup = exerciseNames.map(n => n.trim().toLowerCase());
+      setExerciseHistory(prev => {
+        const historyMap = { ...prev };
+        const nameLookup = exerciseNames.map(n => n.trim().toLowerCase());
+        const missingNames = nameLookup.filter(n => !historyMap[n]);
 
-      for (const record of records) {
-        for (const ex of (record.exercises || [])) {
-          const key = (ex.name || '').trim().toLowerCase();
-          if (nameLookup.includes(key) && !historyMap[key]) {
-            historyMap[key] = (ex.sets || []).map(s => ({ lbs: s.lbs || '', reps: s.reps || '' }));
+        if (missingNames.length === 0) return prev; // All history already loaded
+
+        for (const record of records) {
+          for (const ex of (record.exercises || [])) {
+            const key = (ex.name || '').trim().toLowerCase();
+            if (missingNames.includes(key) && !historyMap[key]) {
+              // Ensure we only pull history from a session where the user ACTUALLY logged sets
+              const validSets = (ex.sets || []).filter(s => s.lbs || s.reps);
+              if (validSets.length > 0) {
+                historyMap[key] = validSets.map(s => ({ lbs: s.lbs || '', reps: s.reps || '' }));
+              }
+            }
           }
         }
-        // Stop early if all exercises found
-        if (Object.keys(historyMap).length >= nameLookup.length) break;
-      }
-      setExerciseHistory(historyMap);
+        return historyMap;
+      });
     } catch (err) {
       console.error("Failed to load exercise history:", err);
     }
@@ -829,6 +836,8 @@ export default function WorkoutPage() {
           }
         ]
       }));
+      // Fetch history for the newly added exercise so past reps/weight show up
+      loadExerciseHistory([exercise.name]);
     }
     setShowExerciseSearch(false);
     setExerciseSearchQuery('');
