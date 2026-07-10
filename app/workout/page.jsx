@@ -227,6 +227,11 @@ export default function WorkoutPage() {
           setRestEndTime(draft.restEndTime || null);
           setRestingExerciseId(draft.restingExerciseId || null);
           setSessionNotes(draft.sessionNotes || '');
+          // Re-fetch previous performance data so the "Prev" column repopulates
+          const exerciseNames = (draft.activeSession.exercises || []).map(ex => ex.name).filter(Boolean);
+          if (exerciseNames.length > 0) {
+            loadExerciseHistory(exerciseNames);
+          }
         }
       } catch (e) {
         console.error("Failed to parse workout draft", e);
@@ -1062,13 +1067,16 @@ export default function WorkoutPage() {
       });
     });
 
+    // Use the session start time so workouts that cross midnight
+    // are saved under the day they were started, not finished
+    const startDate = sessionStartTime ? new Date(sessionStartTime) : new Date();
     const sessionData = {
       name: activeSession.name,
       durationSeconds: globalSeconds,
       totalVolume,
       exercises: activeSession.exercises,
       notes: sessionNotes,
-      createdAt: new Date().toISOString()
+      createdAt: startDate.toISOString()
     };
 
     try {
